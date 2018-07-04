@@ -8,7 +8,7 @@ from requests import PreparedRequest
 __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest')
 
 
-STOCK_EXCHANGE_BASE_URL = 'https://stocks.exchange/api2/{method}'
+STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
 
 
 class StockExchangeRequest(PreparedRequest):

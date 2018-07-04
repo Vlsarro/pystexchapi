@@ -22,7 +22,7 @@ class StocksExchangeAPI(object):
         super(StocksExchangeAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
 
-    def _public_request(self, req: requests.PreparedRequest) -> requests.Response:
+    def _public_query(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()
 
         if cache_adapter:
@@ -35,10 +35,10 @@ class StocksExchangeAPI(object):
 
     def ticker(self) -> dict:
         request = StockExchangeTickerRequest()
-        response = StockExchangeResponseParser.parse(self._public_request(request))
+        response = StockExchangeResponseParser.parse(self._public_query(request))
         return response
 
     def prices(self) -> dict:
         request = StockExchangePricesRequest()
-        response = StockExchangeResponseParser.parse(self._public_request(request))
+        response = StockExchangeResponseParser.parse(self._public_query(request))
         return response

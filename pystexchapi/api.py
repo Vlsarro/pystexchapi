@@ -1,5 +1,5 @@
 import requests
-import cachecontrol
+import warnings
 
 from .request import StockExchangeTickerRequest, StockExchangePricesRequest
 from .response import StockExchangeResponseParser
@@ -8,7 +8,12 @@ from .response import StockExchangeResponseParser
 __all__ = ('StocksExchangeAPI',)
 
 
-cache_adapter = cachecontrol.CacheControlAdapter()
+try:
+    import cachecontrol
+    cache_adapter = cachecontrol.CacheControlAdapter()
+except ImportError:
+    warnings.warn('Caching is not enabled. Install CacheControl for cache enabling', ImportWarning)
+    cache_adapter = None
 
 
 class StocksExchangeAPI(object):
@@ -19,8 +24,10 @@ class StocksExchangeAPI(object):
 
     def _public_request(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()
-        sess.mount('https://', cache_adapter)
-        sess.mount('http://', cache_adapter)
+
+        if cache_adapter:
+            sess.mount('https://', cache_adapter)
+            sess.mount('http://', cache_adapter)
 
         response = sess.send(req, verify=self.ssl_enabled)
         response.raise_for_status()

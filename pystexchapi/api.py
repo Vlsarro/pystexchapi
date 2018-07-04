@@ -76,7 +76,7 @@ class StocksExchangeAPI(object):
                 data = getattr(self, saved_data_attr_name, None)
                 prev_record_time = getattr(self, record_time_attr_name, None)
 
-                if not (data and prev_record_time and (unix_timestamp_now - prev_record_time) < ONE_MINUTE):
+                if not (data and prev_record_time and (unix_timestamp_now - prev_record_time) < saving_time):
                     data = parser.parse(self._query(req))
                     setattr(self, saved_data_attr_name, data)  # store parsed response in memory
                     setattr(self, record_time_attr_name,

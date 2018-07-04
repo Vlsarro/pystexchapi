@@ -1,8 +1,12 @@
 import requests
+import time
+import threading
 import warnings
 
-from .request import StockExchangeTickerRequest, StockExchangePricesRequest
-from .response import StockExchangeResponseParser
+from typing import Type
+
+from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest
+from pystexchapi.response import StockExchangeResponseParser
 
 
 __all__ = ('StocksExchangeAPI',)
@@ -16,13 +20,20 @@ except ImportError:
     cache_adapter = None
 
 
+SAVING_TIME_KEY = 'saving_time'
+ONE_MINUTE = 60.0
+
+
 class StocksExchangeAPI(object):
+    """
+    Base class for implementing Stocks Exchange API
+    """
 
     def __init__(self, ssl_enabled=True):
         super(StocksExchangeAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
 
-    def _public_query(self, req: requests.PreparedRequest) -> requests.Response:
+    def _query(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()
 
         if cache_adapter:
@@ -33,12 +44,50 @@ class StocksExchangeAPI(object):
         response.raise_for_status()
         return response
 
-    def ticker(self) -> dict:
-        request = StockExchangeTickerRequest()
-        response = StockExchangeResponseParser.parse(self._public_query(request))
+    def _public_query(self, parser: Type[StockExchangeResponseParser], req: Type[StockExchangeRequest],
+                      **kwargs) -> dict:
+        _req = req()
+
+        if any(k in kwargs for k in (SAVING_TIME_KEY, 'with_saving')):
+            response = self._public_query_with_saving(parser, _req, **kwargs)
+        else:
+            response = parser.parse(self._query(_req))
+
         return response
 
-    def prices(self) -> dict:
-        request = StockExchangePricesRequest()
-        response = StockExchangeResponseParser.parse(self._public_query(request))
-        return response
+    def _public_query_with_saving(self, parser: Type[StockExchangeResponseParser],
+                                  req: StockExchangeRequest, **kwargs) -> dict:
+        """
+        Method enables user to save parsed response for specified time and prevents additional requests in
+        this time interval. This method is convenient for ban avoidance in case of too frequent requests to API.
+
+        Reentrant lock ensures thread safety of method.
+        """
+        unix_timestamp_now = time.time()
+
+        saved_data_attr_name = '{}_data'.format(req.api_method)
+        record_time_attr_name = '{}_time'.format(req.api_method)
+
+        saving_time = kwargs.get(SAVING_TIME_KEY, ONE_MINUTE)
+
+        with threading.RLock():
+            if saving_time:
+                # get saved values from previous requests if period of saving is set
+                data = getattr(self, saved_data_attr_name, None)
+                prev_record_time = getattr(self, record_time_attr_name, None)
+
+                if not (data and prev_record_time and (unix_timestamp_now - prev_record_time) < ONE_MINUTE):
+                    data = parser.parse(self._query(req))
+                    setattr(self, saved_data_attr_name, data)  # store parsed response in memory
+                    setattr(self, record_time_attr_name,
+                            unix_timestamp_now)  # save the recording time for response
+            else:
+                data = parser.parse(self._query(req))
+
+            return data
+
+    def ticker(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeTickerRequest, **kwargs)
+
+    def prices(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangePricesRequest, **kwargs)

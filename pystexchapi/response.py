@@ -4,7 +4,7 @@ Stocks Exchange API response parsers
 
 import requests
 
-from .exc import APIResponseParsingException
+from pystexchapi.exc import APIResponseParsingException
 
 
 class StockExchangeResponseParser(object):

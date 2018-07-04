@@ -5,13 +5,14 @@ Stocks Exchange API requests
 from requests import PreparedRequest
 
 
-__all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest')
+__all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest')
 
 
 STOCK_EXCHANGE_BASE_URL = 'https://stocks.exchange/api2/{method}'
 
 
 class StockExchangeRequest(PreparedRequest):
+    api_method = None
 
     def __init__(self, **kwargs):
         super(StockExchangeRequest, self).__init__()
@@ -28,7 +29,8 @@ class StockExchangeRequest(PreparedRequest):
             'headers': {
                 'Content-Type': 'application/json',
                 'User-Agent': 'pystexchapi'
-            }
+            },
+            'url': STOCK_EXCHANGE_BASE_URL.format(method=self.api_method)
         }
         return _params
 
@@ -39,16 +41,8 @@ class StockExchangeRequest(PreparedRequest):
 
 
 class StockExchangeTickerRequest(StockExchangeRequest):
-
-    def default_request_params(self) -> dict:
-        _params = super(StockExchangeTickerRequest, self).default_request_params()
-        _params['url'] = STOCK_EXCHANGE_BASE_URL.format(method='ticker')
-        return _params
+    api_method = 'ticker'
 
 
 class StockExchangePricesRequest(StockExchangeRequest):
-
-    def default_request_params(self) -> dict:
-        _params = super(StockExchangePricesRequest, self).default_request_params()
-        _params['url'] = STOCK_EXCHANGE_BASE_URL.format(method='prices')
-        return _params
+    api_method = 'prices'

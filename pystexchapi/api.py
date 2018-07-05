@@ -5,7 +5,9 @@ import warnings
 
 from typing import Type
 
-from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest
+from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest, \
+    StockExchangeCurrenciesRequest, StockExchangeMarketsRequest, StockExchangeMarketSummaryRequest, \
+    StockExchangeTradeHistoryRequest, StockExchangeOrderbookRequest, StockExchangeGraficPublicRequest
 from pystexchapi.response import StockExchangeResponseParser
 
 
@@ -46,7 +48,7 @@ class StocksExchangeAPI(object):
 
     def _public_query(self, parser: Type[StockExchangeResponseParser], req: Type[StockExchangeRequest],
                       **kwargs) -> dict:
-        _req = req()
+        _req = req(**kwargs)
 
         if any(k in kwargs for k in (SAVING_TIME_KEY, 'with_saving')):
             response = self._public_query_with_saving(parser, _req, **kwargs)
@@ -91,3 +93,21 @@ class StocksExchangeAPI(object):
 
     def prices(self, **kwargs) -> dict:
         return self._public_query(StockExchangeResponseParser, StockExchangePricesRequest, **kwargs)
+
+    def currencies(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeCurrenciesRequest, **kwargs)
+
+    def markets(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeMarketsRequest, **kwargs)
+
+    def market_summary(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeMarketSummaryRequest, **kwargs)
+
+    def trade_history(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeTradeHistoryRequest, **kwargs)
+
+    def orderbook(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeOrderbookRequest, **kwargs)
+
+    def grafic(self, **kwargs) -> dict:
+        return self._public_query(StockExchangeResponseParser, StockExchangeGraficPublicRequest, **kwargs)

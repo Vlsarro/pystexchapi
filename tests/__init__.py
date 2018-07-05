@@ -42,5 +42,38 @@ PRICES_RESPONSE = json.dumps([
         'market_name': 'ARDOR_BTC',
         'updated_time': 1530688873,
         'server_time': 1530688873
+    }
+])
+
+MARKETS_RESPONSE = json.dumps([
+    {
+        'currency': 'PRG',
+        'partner': 'BTC',
+        'currency_long': 'ParagonCoin',
+        'partner_long': 'Bitcoin',
+        'min_order_amount': '0.00000010',
+        'min_buy_price': '0.00000001',
+        'min_sell_price': '0.00000001',
+        'buy_fee_percent': '0.2',
+        'sell_fee_percent': '0.2',
+        'active': True,
+        'currency_precision': 8,
+        'partner_precision': 8,
+        'market_name': 'PRG_BTC'
     },
+    {
+        'currency': 'BTC',
+        'partner': 'USDT',
+        'currency_long': 'Bitcoin',
+        'partner_long': 'TetherUSD',
+        'min_order_amount': '0.00000010',
+        'min_buy_price': '0.00000001',
+        'min_sell_price': '0.00000001',
+        'buy_fee_percent': '0.2',
+        'sell_fee_percent': '0.2',
+        'active': True,
+        'currency_precision': 8,
+        'partner_precision': 8,
+        'market_name': 'BTC_USDT'
+    }
 ])

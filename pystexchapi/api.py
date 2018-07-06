@@ -46,19 +46,19 @@ class StocksExchangeAPI(object):
         response.raise_for_status()
         return response
 
-    def _public_query(self, parser: Type[StockExchangeResponseParser], req: Type[StockExchangeRequest],
-                      **kwargs) -> dict:
+    def query(self, parser: Type[StockExchangeResponseParser], req: Type[StockExchangeRequest],
+              **kwargs) -> dict:
         _req = req(**kwargs)
 
         if any(k in kwargs for k in (SAVING_TIME_KEY, 'with_saving')):
-            response = self._public_query_with_saving(parser, _req, **kwargs)
+            response = self._query_with_saving(parser, _req, **kwargs)
         else:
             response = parser.parse(self._query(_req))
 
         return response
 
-    def _public_query_with_saving(self, parser: Type[StockExchangeResponseParser],
-                                  req: StockExchangeRequest, **kwargs) -> dict:
+    def _query_with_saving(self, parser: Type[StockExchangeResponseParser],
+                           req: StockExchangeRequest, **kwargs) -> dict:
         """
         Method enables user to save parsed response for specified time and prevents additional requests in
         this time interval. This method is convenient for ban avoidance in case of too frequent requests to API.
@@ -89,25 +89,25 @@ class StocksExchangeAPI(object):
             return data
 
     def ticker(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeTickerRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeTickerRequest, **kwargs)
 
     def prices(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangePricesRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangePricesRequest, **kwargs)
 
     def currencies(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeCurrenciesRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeCurrenciesRequest, **kwargs)
 
     def markets(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeMarketsRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeMarketsRequest, **kwargs)
 
     def market_summary(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeMarketSummaryRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeMarketSummaryRequest, **kwargs)
 
     def trade_history(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeTradeHistoryRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeTradeHistoryRequest, **kwargs)
 
     def orderbook(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeOrderbookRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeOrderbookRequest, **kwargs)
 
     def grafic(self, **kwargs) -> dict:
-        return self._public_query(StockExchangeResponseParser, StockExchangeGraficPublicRequest, **kwargs)
+        return self.query(StockExchangeResponseParser, StockExchangeGraficPublicRequest, **kwargs)

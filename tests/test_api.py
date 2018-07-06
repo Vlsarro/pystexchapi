@@ -43,7 +43,7 @@ class TestStocksExchangeAPI(TestCase):
     def test_public_query(self, m):
         # test with predefined ticker request
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
-        data = self.api._public_query(StockExchangeResponseParser, StockExchangeTickerRequest)
+        data = self.api.query(StockExchangeResponseParser, StockExchangeTickerRequest)
 
         self.assertTicker(m)
         self.assertTrue(data)
@@ -52,17 +52,17 @@ class TestStocksExchangeAPI(TestCase):
         with patch('time.time') as time_mock:
             time_mock.return_value = 130.0
 
-            data = self.api._public_query(StockExchangeResponseParser, StockExchangeTickerRequest, with_saving=True)
+            data = self.api.query(StockExchangeResponseParser, StockExchangeTickerRequest, with_saving=True)
             self.assertEqual(m.call_count, 2)
             self.assertTrue(data)
 
             time_mock.return_value = 140.0
-            data = self.api._public_query(StockExchangeResponseParser, StockExchangeTickerRequest, saving_time=60.0)
+            data = self.api.query(StockExchangeResponseParser, StockExchangeTickerRequest, saving_time=60.0)
             self.assertEqual(m.call_count, 2)  # no call because time has not passed yet
             self.assertTrue(data)
 
             # change threshold to 5 seconds
-            data = self.api._public_query(StockExchangeResponseParser, StockExchangeTickerRequest, saving_time=5.0)
+            data = self.api.query(StockExchangeResponseParser, StockExchangeTickerRequest, saving_time=5.0)
             self.assertEqual(m.call_count, 3)
             self.assertTrue(data)
 
@@ -72,23 +72,23 @@ class TestStocksExchangeAPI(TestCase):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
         time_mock.return_value = 130.0
 
-        data = self.api._public_query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertTrue(data)
 
         time_mock.return_value = 140.0
-        data = self.api._public_query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
         self.assertEqual(m.call_count, 1)  # there was no call to API, use saved response
         self.assertTrue(data)
 
         time_mock.return_value = 189.9
-        data = self.api._public_query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
         self.assertEqual(m.call_count, 1)  # there was no call to API, use saved response
         self.assertTrue(data)
 
         time_mock.return_value = 191.0
-        data = self.api._public_query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, StockExchangeTickerRequest())
         self.assertEqual(m.call_count, 2)
         self.assertTrue(data)
 

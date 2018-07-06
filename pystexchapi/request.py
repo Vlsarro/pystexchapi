@@ -10,12 +10,12 @@ from requests import PreparedRequest
 from pystexchapi.utils import make_nonce
 
 
-__all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest',
+__all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest', 'ENCODING',
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
            'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
            'StockExchangeGetAccountInfoRequest')
 
-
+ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
 
 
@@ -136,7 +136,7 @@ class StockExchangePrivateRequest(StockExchangeRequest):
                 'nonce': make_nonce(),
                 'method': self.api_method
             })
-            sign = hmac.new(api_secret, bytearray(signdata, encoding='utf-8'), hashlib.sha512).hexdigest()
+            sign = hmac.new(api_secret, bytearray(signdata, encoding=ENCODING), hashlib.sha512).hexdigest()
             headers = {
                 'Content-Type': 'application/json',  # FIXME: headers are repeating itself here
                 'User-Agent': 'pystexchapi',

@@ -8,7 +8,7 @@ from typing import Type
 from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest, \
     StockExchangeCurrenciesRequest, StockExchangeMarketsRequest, StockExchangeMarketSummaryRequest, \
     StockExchangeTradeHistoryRequest, StockExchangeOrderbookRequest, StockExchangeGraficPublicRequest, \
-    StockExchangeGetAccountInfoRequest
+    StockExchangeGetAccountInfoRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 
 
@@ -35,8 +35,8 @@ class StocksExchangeAPI(object):
     def __init__(self, ssl_enabled=True, api_key=None, api_secret=None):
         super(StocksExchangeAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
-        self._api_key = api_key
-        self._api_secret = api_secret
+        self._api_key = bytearray(api_key, encoding=ENCODING)
+        self._api_secret = bytearray(api_secret, encoding=ENCODING)
 
     def _query(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()

@@ -123,6 +123,11 @@ class StockExchangeGraficPublicRequest(StockExchangeTradeHistoryRequest):
             return result
 
 
+###################################################################
+# Requests for private methods
+###################################################################
+
+
 class StockExchangePrivateRequest(StockExchangeRequest):
 
     def get_request_options(self, kwargs: dict) -> dict:

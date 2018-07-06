@@ -2,12 +2,18 @@
 Stocks Exchange API requests
 """
 
+import json
+import hmac
+import hashlib
 from requests import PreparedRequest
+
+from pystexchapi.utils import make_nonce
 
 
 __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest',
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
-           'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest')
+           'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
+           'StockExchangeGetAccountInfoRequest')
 
 
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -115,3 +121,35 @@ class StockExchangeGraficPublicRequest(StockExchangeTradeHistoryRequest):
                 'count': count
             })
             return result
+
+
+class StockExchangePrivateRequest(StockExchangeRequest):
+
+    def get_request_options(self, kwargs: dict) -> dict:
+        api_key = kwargs.pop('api_key', None)
+        api_secret = kwargs.pop('api_secret', None)
+
+        if not all([api_key, api_secret]):
+            raise AttributeError('Invalid request parameters')
+        else:
+            signdata = json.dumps({
+                'nonce': make_nonce(),
+                'method': self.api_method
+            })
+            sign = hmac.new(api_secret, bytearray(signdata, encoding='utf-8'), hashlib.sha512).hexdigest()
+            headers = {
+                'Content-Type': 'application/json',  # FIXME: headers are repeating itself here
+                'User-Agent': 'pystexchapi',
+                'Key': api_key,
+                'Sign': sign
+            }
+            return {
+                'headers': headers,
+                'data': signdata,
+                'method': 'POST',
+                'url': STOCK_EXCHANGE_BASE_URL.format(method='')
+            }
+
+
+class StockExchangeGetAccountInfoRequest(StockExchangePrivateRequest):
+    api_method = 'GetInfo'

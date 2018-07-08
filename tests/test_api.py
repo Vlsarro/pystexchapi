@@ -1,3 +1,5 @@
+import hmac
+import hashlib
 import requests
 import requests_mock
 
@@ -5,16 +7,18 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from pystexchapi.api import StocksExchangeAPI
-from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequest
+from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
-from tests import TICKER_RESPONSE, PRICES_RESPONSE
+from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE
 
 
 @requests_mock.Mocker()
 class TestStocksExchangeAPI(TestCase):
 
     def setUp(self):
-        self.api = StocksExchangeAPI()
+        self.shared_secret = 'KW9Wixy1zj9uNyzOjFbPu7YmU4iVJ1n3lEzqVAe5byx93IwugVQdlhoN03MzZW75'
+        self.api = StocksExchangeAPI(api_key='ak9uh9ezAK3w7FivoRdEnIFjBg7Ywjz4sImOpIzE',
+                                     api_secret=self.shared_secret)
 
     def assertTicker(self, m):
         self.assertTrue(m.called)
@@ -29,6 +33,15 @@ class TestStocksExchangeAPI(TestCase):
         self.assertEqual(req_headers['Content-Type'], 'application/json')
 
         return req
+
+    def assertAuth(self, m):
+        req = m.request_history[0]
+        signdata = bytearray(req.text, encoding=ENCODING)
+        sign = bytes(hmac.new(bytes(self.shared_secret, encoding=ENCODING), signdata, hashlib.sha512).hexdigest(),
+                     encoding=ENCODING)
+        req_sign = bytes(req.headers['Sign'], encoding=ENCODING)
+        self.assertTrue(hmac.compare_digest(req_sign, sign), msg='Calculated sign: {}\n'
+                                                                 'Sign in request: {}'.format(sign, req_sign))
 
     def test_query(self, m):
         # test with predefined ticker request
@@ -124,3 +137,44 @@ class TestStocksExchangeAPI(TestCase):
         self.assertTrue(data)
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 3)
+
+    def test_markets(self, m):
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='markets'), text=MARKETS_RESPONSE)
+
+        data = self.api.markets()
+        self.assertTrue(m.called)
+        self.assertEqual(m.call_count, 1)
+
+        req = m.request_history[0]
+        self.assertEqual(req.method, 'GET')
+        self.assertEqual(req.url, 'https://app.stocks.exchange/api2/markets')
+
+        req_headers = req.headers
+        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
+        self.assertEqual(req_headers['Content-Type'], 'application/json')
+
+        self.assertTrue(data)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+
+    ######################################################
+    # Test private API methods
+    ######################################################
+
+    def test_get_account_info(self, m):
+        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=GET_ACCOUT_INFO_RESPONSE)
+
+        result = self.api.get_account_info()
+
+        self.assertTrue(m.called)
+        self.assertEqual(m.call_count, 1)
+        self.assertAuth(m)
+        self.assertTrue(result)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result.get('success'), 1)
+        self.assertIn('data', result)
+
+        req = m.request_history[0]
+        req_headers = req.headers
+        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
+        self.assertEqual(req_headers['Content-Type'], 'application/json')

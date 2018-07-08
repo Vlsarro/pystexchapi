@@ -36,10 +36,10 @@ class TestStocksExchangeAPI(TestCase):
 
     def assertAuth(self, m):
         req = m.request_history[0]
-        signdata = bytearray(req.text, encoding=ENCODING)
-        sign = bytes(hmac.new(bytes(self.shared_secret, encoding=ENCODING), signdata, hashlib.sha512).hexdigest(),
-                     encoding=ENCODING)
+        req_signdata = bytearray(req.text, encoding=ENCODING)
         req_sign = bytes(req.headers['Sign'], encoding=ENCODING)
+        sign = bytes(hmac.new(bytes(self.shared_secret, encoding=ENCODING), req_signdata, hashlib.sha512).hexdigest(),
+                     encoding=ENCODING)
         self.assertTrue(hmac.compare_digest(req_sign, sign), msg='Calculated sign: {}\n'
                                                                  'Sign in request: {}'.format(sign, req_sign))
 

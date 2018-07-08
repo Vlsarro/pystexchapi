@@ -35,8 +35,8 @@ class StocksExchangeAPI(object):
     def __init__(self, ssl_enabled=True, api_key='', api_secret=''):
         super(StocksExchangeAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
-        self._api_key = bytearray(api_key, encoding=ENCODING)
-        self._api_secret = bytearray(api_secret, encoding=ENCODING)
+        self._api_key = bytes(api_key, encoding=ENCODING)
+        self._api_secret = bytes(api_secret, encoding=ENCODING)
 
     def _query(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()

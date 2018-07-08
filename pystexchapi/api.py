@@ -32,7 +32,7 @@ class StocksExchangeAPI(object):
     Base class for implementing Stocks Exchange API
     """
 
-    def __init__(self, ssl_enabled=True, api_key=None, api_secret=None):
+    def __init__(self, ssl_enabled=True, api_key='', api_secret=''):
         super(StocksExchangeAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
         self._api_key = bytearray(api_key, encoding=ENCODING)

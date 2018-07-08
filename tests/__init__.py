@@ -1,7 +1,8 @@
 import json
 
 
-__all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE')
+__all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARKETS_RESPONSE',
+           'GET_ACCOUT_INFO_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -77,3 +78,33 @@ MARKETS_RESPONSE = json.dumps([
         'market_name': 'BTC_USDT'
     }
 ])
+
+GENERIC_ERROR_RESPONSE = json.dumps({'success': 0, 'error': 'Invalid request'})
+
+GET_ACCOUT_INFO_RESPONSE = json.dumps({
+    'success': 1,
+    'data': {
+        'email': 'example@exaxmple.com',
+        'username': 'example',
+        'userSessions': [],
+        'hash': '',
+        'funds': {
+            'BTK': '9832',
+            'XUN': '982',
+            'CHEESE': '32'
+        },
+        'hold_funds': {
+            'BTK': '0', 'XUN': '0', 'CHEESE': '0'
+        },
+        'wallets_addresses': {'BTK': '', 'XUN': '', 'CHEESE': ''},
+        'publick_key': {'BTK': '', 'XUN': '', 'CHEESE': ''},
+        'Assets portfolio': {
+            'portfolio_price': 0,
+            'frozen_portfolio_price': 0,
+            'count': 0,
+            'assets': []
+        },
+        'open_orders': 0,
+        'server_time': 1540885009
+    }
+})

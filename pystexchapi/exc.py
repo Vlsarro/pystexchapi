@@ -3,7 +3,7 @@ import requests
 import warnings
 
 
-__all__ = ('APIResponseParsingException',)
+__all__ = ('APIResponseParsingException', 'APIDataException')
 
 
 class APIBaseException(requests.exceptions.RequestException):
@@ -33,7 +33,7 @@ class APIBaseException(requests.exceptions.RequestException):
             args.extend(['%s=%s' % (k, repr(v)) for k, v in self.kw.items()])
         except Exception as e:
             traceback.print_exc()
-            return '{INTERNAL EXCEPTION %s, see error.log}' % e.__class__.__name__
+            return '{INTERNAL EXCEPTION %s}' % e.__class__.__name__
 
         return u'{}({})'.format(self.__class__.__name__, u', '.join(args))
 
@@ -44,3 +44,7 @@ class APIBaseException(requests.exceptions.RequestException):
 class APIResponseParsingException(APIBaseException):
     msg = 'Parsing error'
     error_code = '04'
+
+
+class APIDataException(APIBaseException):
+    error_code = '05'

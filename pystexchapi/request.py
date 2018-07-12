@@ -20,31 +20,38 @@ STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
 
 
 class StockExchangeRequest(PreparedRequest):
+    available_params = ('method', 'url', 'headers', 'file', 'data', 'params', 'auth', 'cookies', 'hooks', 'json')
     api_method = None
+    is_private = False
 
     def __init__(self, **kwargs):
         super(StockExchangeRequest, self).__init__()
-        default_request_params = self.default_request_params()
-        request_options = self.get_request_options(kwargs)
-        default_request_params.update(request_options)
-        self.prepare(**default_request_params)
+        default_request_params = self._default_request_params()
+        default_request_params.update(kwargs)
+        params = self._sanitize_params(default_request_params)
+        self.prepare(**params)
 
-    def get_request_options(self, kwargs: dict) -> dict:
-        return {}
+    @staticmethod
+    def _default_request_headers() -> dict:
+        return {
+            'Content-Type': 'application/json',
+            'User-Agent': 'pystexchapi'
+        }
 
-    def default_request_params(self) -> dict:
+    def _default_request_params(self) -> dict:
         """
         Construct default parameters for request to Stocks Exchange API
         """
         _params = {
             'method': 'GET',
-            'headers': {
-                'Content-Type': 'application/json',
-                'User-Agent': 'pystexchapi'
-            },
+            'headers': self._default_request_headers(),
             'url': STOCK_EXCHANGE_BASE_URL.format(method=self.api_method)
         }
         return _params
+
+    def _sanitize_params(self, params: dict) -> dict:
+        """Request parameters cleaning before preparing request"""
+        return {k: v for k, v in params.items() if k in self.available_params}
 
 
 ###################################################################
@@ -71,31 +78,17 @@ class StockExchangeMarketsRequest(StockExchangeRequest):
 class StockExchangeMarketSummaryRequest(StockExchangeRequest):
     api_method = 'market_summary'
 
-    def get_request_options(self, kwargs: dict) -> dict:
-        currency_1 = kwargs.pop('currency_1', None)
-        currency_2 = kwargs.pop('currency_2', None)
-
-        if not (currency_1 or currency_2):
-            raise AttributeError('Invalid request parameters')
-        else:
-            return {
-                'url': STOCK_EXCHANGE_BASE_URL.format(method=self.api_method) + '/{}/{}'.format(currency_1, currency_2)
-            }
+    def __init__(self, currency1: str, currency2: str, **kwargs):
+        url = STOCK_EXCHANGE_BASE_URL.format(method=self.api_method) + '/{}/{}'.format(currency1, currency2)
+        super(StockExchangeMarketSummaryRequest, self).__init__(url=url, **kwargs)
 
 
 class StockExchangeTradeHistoryRequest(StockExchangeRequest):
     api_method = 'trades'
 
-    def get_request_options(self, kwargs: dict) -> dict:
-        currency_1 = kwargs.pop('currency_1', None)
-        currency_2 = kwargs.pop('currency_2', None)
-
-        if not all([currency_1, currency_2]):
-            raise AttributeError('Invalid request parameters')
-        else:
-            return {
-                'params': {'pair': '{}_{}'.format(currency_1, currency_2)}
-            }
+    def __init__(self, currency1: str, currency2: str, **kwargs):
+        params = {'pair': '{}_{}'.format(currency1, currency2)}
+        super(StockExchangeTradeHistoryRequest, self).__init__(params=params, **kwargs)
 
 
 class StockExchangeOrderbookRequest(StockExchangeTradeHistoryRequest):
@@ -105,22 +98,14 @@ class StockExchangeOrderbookRequest(StockExchangeTradeHistoryRequest):
 class StockExchangeGraficPublicRequest(StockExchangeTradeHistoryRequest):
     api_method = 'grafic_public'
 
-    def get_request_options(self, kwargs: dict) -> dict:
-        result = super(StockExchangeGraficPublicRequest, self).get_request_options(kwargs)
-        # TODO: find another way for specifying required request options
-        interval = kwargs.pop('interval', None)
-        order = kwargs.pop('order', None)
-        count = kwargs.pop('count', None)
-
-        if not all([interval, order, count]):
-            raise AttributeError('Invalid request parameters')
-        else:
-            result['params'].update({
-                'interval': interval,
-                'order': order,
-                'count': count
-            })
-            return result
+    def __init__(self, currency1: str, currency2: str, interval: str, order: str, count: int, **kwargs):
+        params = {
+            'pair': '{}_{}'.format(currency1, currency2),
+            'interval': interval,
+            'order': order,
+            'count': count
+        }
+        super(StockExchangeGraficPublicRequest, self).__init__(params=params, **kwargs)
 
 
 ###################################################################
@@ -130,30 +115,29 @@ class StockExchangeGraficPublicRequest(StockExchangeTradeHistoryRequest):
 
 class StockExchangePrivateRequest(StockExchangeRequest):
 
-    def get_request_options(self, kwargs: dict) -> dict:
-        api_key = kwargs.pop('api_key', None)
-        api_secret = kwargs.pop('api_secret', None)
+    is_private = True
 
-        if not all([api_key, api_secret]):
-            raise AttributeError('Invalid request parameters')
-        else:
-            signdata = json.dumps({
-                'nonce': make_nonce(),
-                'method': self.api_method
-            })
-            sign = hmac.new(api_secret, bytearray(signdata, encoding=ENCODING), hashlib.sha512).hexdigest()
-            headers = {
-                'Content-Type': 'application/json',  # FIXME: headers are repeating itself here
-                'User-Agent': 'pystexchapi',
-                'Key': api_key,
-                'Sign': sign
-            }
-            return {
-                'headers': headers,
-                'data': signdata,
-                'method': 'POST',
-                'url': STOCK_EXCHANGE_BASE_URL.format(method='')
-            }
+    def __init__(self, api_key: str, api_secret: str, **kwargs):
+        _params = self.hmac_auth(api_key, api_secret)
+        kwargs.update(_params)
+        super(StockExchangePrivateRequest, self).__init__(url=STOCK_EXCHANGE_BASE_URL.format(method=''), method='POST',
+                                                          **kwargs)
+
+    def hmac_auth(self, api_key: str, api_secret: str) -> dict:
+        signdata = json.dumps({
+            'nonce': make_nonce(),
+            'method': self.api_method
+        })
+        sign = hmac.new(api_secret, bytearray(signdata, encoding=ENCODING), hashlib.sha512).hexdigest()
+        headers = self._default_request_headers()
+        headers.update({
+            'Key': api_key,
+            'Sign': sign
+        })
+        return {
+            'headers': headers,
+            'data': signdata
+        }
 
 
 class StockExchangeGetAccountInfoRequest(StockExchangePrivateRequest):

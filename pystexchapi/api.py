@@ -5,6 +5,7 @@ import warnings
 
 from typing import Type
 
+from pystexchapi.exc import APINoMethodException
 from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest, \
     StockExchangeCurrenciesRequest, StockExchangeMarketsRequest, StockExchangeMarketSummaryRequest, \
     StockExchangeTradeHistoryRequest, StockExchangeOrderbookRequest, StockExchangeGraficPublicRequest, \
@@ -27,16 +28,43 @@ SAVING_TIME_KEY = 'saving_time'
 ONE_MINUTE = 60.0
 
 
+class APIMethod(object):
+
+    def __init__(self, name: str, request: Type[StockExchangeRequest], parser: Type[StockExchangeResponseParser]):
+        self.name = name
+        self.request = request
+        self.parser = parser
+
+
+DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
+    APIMethod(name='ticker', request=StockExchangeTickerRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='prices', request=StockExchangePricesRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='currencies', request=StockExchangeCurrenciesRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='markets', request=StockExchangeMarketsRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='market_summary', request=StockExchangeMarketSummaryRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='trade_history', request=StockExchangeTradeHistoryRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='orderbook', request=StockExchangeOrderbookRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='grafic', request=StockExchangeGraficPublicRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='get_account_info', request=StockExchangeGetAccountInfoRequest, parser=StockExchangeResponseParser)
+)
+
+
 class StocksExchangeAPI(object):
     """
     Base class for implementing Stocks Exchange API
     """
 
-    def __init__(self, ssl_enabled=True, api_key='', api_secret=''):
+    def __init__(self, ssl_enabled: bool=True, api_key: str='', api_secret: str='', api_methods: dict=None):
         super(StocksExchangeAPI, self).__init__()
         self.ssl_enabled = ssl_enabled
         self._api_key = bytes(api_key, encoding=ENCODING)
         self._api_secret = bytes(api_secret, encoding=ENCODING)
+        self._init_default_api_methods()
+        if api_methods:
+            self.api_methods.update(api_methods)
+
+    def _init_default_api_methods(self):
+        self.api_methods = {method.name: method for method in DEFAULT_STOCKS_EXCHANGE_API_METHODS}
 
     def _query(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()
@@ -91,30 +119,16 @@ class StocksExchangeAPI(object):
 
             return data
 
-    def ticker(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeTickerRequest, **kwargs)
+    def call(self, method: str, **kwargs):
+        _method = self.api_methods.get(method)
 
-    def prices(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangePricesRequest, **kwargs)
+        if not _method:
+            raise APINoMethodException(method=method)
 
-    def currencies(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeCurrenciesRequest, **kwargs)
+        if _method.request.is_private:
+            kwargs.update({
+                'api_key': self._api_key,
+                'api_secret': self._api_secret
+            })
 
-    def markets(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeMarketsRequest, **kwargs)
-
-    def market_summary(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeMarketSummaryRequest, **kwargs)
-
-    def trade_history(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeTradeHistoryRequest, **kwargs)
-
-    def orderbook(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeOrderbookRequest, **kwargs)
-
-    def grafic(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeGraficPublicRequest, **kwargs)
-
-    def get_account_info(self, **kwargs) -> dict:
-        return self.query(StockExchangeResponseParser, StockExchangeGetAccountInfoRequest, api_key=self._api_key,
-                          api_secret=self._api_secret, **kwargs)
+        return self.query(_method.parser, _method.request, **kwargs)

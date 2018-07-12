@@ -111,7 +111,7 @@ class TestStocksExchangeAPI(TestCase):
 
     def test_ticker(self, m):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
-        data = self.api.ticker()
+        data = self.api.call('ticker')
 
         self.assertTicker(m)
 
@@ -121,7 +121,7 @@ class TestStocksExchangeAPI(TestCase):
 
     def test_prices(self, m):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='prices'), text=PRICES_RESPONSE)
-        data = self.api.prices()
+        data = self.api.call('prices')
 
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
@@ -141,7 +141,7 @@ class TestStocksExchangeAPI(TestCase):
     def test_markets(self, m):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='markets'), text=MARKETS_RESPONSE)
 
-        data = self.api.markets()
+        data = self.api.call('markets')
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
 
@@ -164,7 +164,7 @@ class TestStocksExchangeAPI(TestCase):
     def test_get_account_info(self, m):
         m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=GET_ACCOUT_INFO_RESPONSE)
 
-        result = self.api.get_account_info()
+        result = self.api.call('get_account_info')
 
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)

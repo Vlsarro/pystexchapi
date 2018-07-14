@@ -61,10 +61,13 @@ class StocksExchangeAPI(object):
         self._api_secret = bytes(api_secret, encoding=ENCODING)
         self._init_default_api_methods()
         if api_methods:
-            self.api_methods.update(api_methods)
+            self.update_api_methods(api_methods)
 
     def _init_default_api_methods(self):
         self.api_methods = {method.name: method for method in DEFAULT_STOCKS_EXCHANGE_API_METHODS}
+
+    def update_api_methods(self, api_methods: dict):
+        self.api_methods.update(api_methods)
 
     def _query(self, req: requests.PreparedRequest) -> requests.Response:
         sess = requests.Session()

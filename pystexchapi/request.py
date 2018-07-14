@@ -13,7 +13,7 @@ from pystexchapi.utils import make_nonce
 __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest', 'ENCODING',
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
            'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
-           'StockExchangeGetAccountInfoRequest')
+           'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -126,16 +126,21 @@ class StockExchangePrivateRequest(StockExchangeRequest):
     is_private = True
 
     def __init__(self, api_key: str, api_secret: str, **kwargs):
-        _params = self.hmac_auth(api_key, api_secret)
+        _params = self.hmac_auth(api_key, api_secret, request_data=kwargs.pop('request_data', None))
         kwargs.update(_params)
         super(StockExchangePrivateRequest, self).__init__(url=STOCK_EXCHANGE_BASE_URL.format(method=''), method='POST',
                                                           **kwargs)
 
-    def hmac_auth(self, api_key: str, api_secret: str) -> dict:
-        signdata = json.dumps({
+    def hmac_auth(self, api_key: str, api_secret: str, request_data: dict=None) -> dict:
+        _data = {
             'nonce': make_nonce(),
             'method': self.api_method
-        })
+        }
+
+        if request_data:
+            _data.update(request_data)
+
+        signdata = json.dumps(_data)
         sign = hmac.new(api_secret, bytearray(signdata, encoding=ENCODING), hashlib.sha512).hexdigest()
         headers = self._default_request_headers()
         headers.update({
@@ -150,3 +155,38 @@ class StockExchangePrivateRequest(StockExchangeRequest):
 
 class StockExchangeGetAccountInfoRequest(StockExchangePrivateRequest):
     api_method = 'GetInfo'
+
+
+class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
+    api_method = 'ActiveOrders'
+
+    def __init__(self, api_key: str, api_secret: str, _from: str=None, from_id: str=None, end_id: str=None,
+                 since: str=None, end: str=None, pair: str='ALL', count: int=50, order: str='DESC',
+                 _type: str='ALL', owner: str='OWN', **kwargs):
+        request_data = {
+            'pair': pair,
+            'count': count,
+            'order': order,
+            'type': _type,
+            'owner': owner
+        }
+
+        # TODO: think about the way to get rid of this type of data assignments
+
+        if _from:
+            request_data['from'] = _from
+
+        if from_id:
+            request_data['from_id'] = from_id
+
+        if end_id:
+            request_data['end_id'] = end_id
+
+        if since:
+            request_data['since'] = since
+
+        if end:
+            request_data['end'] = end
+
+        super(StockExchangeGetActiveOrdersRequest, self).__init__(api_key=api_key, api_secret=api_secret,
+                                                                  request_data=request_data, **kwargs)

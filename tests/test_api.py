@@ -11,7 +11,8 @@ from pystexchapi.exc import APINoMethodException
 from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequest, ENCODING, StockExchangeRequest
 from pystexchapi.response import StockExchangeResponseParser
 from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
-    MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE
+    MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
+    GET_ACTIVE_ORDERS_RESPONSE
 
 
 class TestStocksExchangeAPI(TestCase):
@@ -279,6 +280,24 @@ class TestStocksExchangeAPI(TestCase):
 
         result = self.api.call('get_account_info')
 
+        self.assertTrue(m.called)
+        self.assertEqual(m.call_count, 1)
+        self.assertAuth(m)
+        self.assertTrue(result)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result.get('success'), 1)
+        self.assertIn('data', result)
+
+        req = m.request_history[0]
+        req_headers = req.headers
+        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
+        self.assertEqual(req_headers['Content-Type'], 'application/json')
+
+    @requests_mock.Mocker()
+    def test_get_active_orders(self, m):
+        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=GET_ACTIVE_ORDERS_RESPONSE)
+
+        result = self.api.call('get_active_orders')
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertAuth(m)

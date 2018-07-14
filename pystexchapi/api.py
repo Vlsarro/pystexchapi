@@ -9,11 +9,11 @@ from pystexchapi.exc import APINoMethodException
 from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest, \
     StockExchangeCurrenciesRequest, StockExchangeMarketsRequest, StockExchangeMarketSummaryRequest, \
     StockExchangeTradeHistoryRequest, StockExchangeOrderbookRequest, StockExchangeGraficPublicRequest, \
-    StockExchangeGetAccountInfoRequest, ENCODING
+    StockExchangeGetAccountInfoRequest, StockExchangeGetActiveOrdersRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 
 
-__all__ = ('StocksExchangeAPI',)
+__all__ = ('StocksExchangeAPI', 'APIMethod')
 
 
 try:
@@ -37,6 +37,9 @@ class APIMethod(object):
 
 
 DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
+
+    # Public methods
+
     APIMethod(name='ticker', request=StockExchangeTickerRequest, parser=StockExchangeResponseParser),
     APIMethod(name='prices', request=StockExchangePricesRequest, parser=StockExchangeResponseParser),
     APIMethod(name='currencies', request=StockExchangeCurrenciesRequest, parser=StockExchangeResponseParser),
@@ -45,7 +48,23 @@ DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
     APIMethod(name='trade_history', request=StockExchangeTradeHistoryRequest, parser=StockExchangeResponseParser),
     APIMethod(name='orderbook', request=StockExchangeOrderbookRequest, parser=StockExchangeResponseParser),
     APIMethod(name='grafic', request=StockExchangeGraficPublicRequest, parser=StockExchangeResponseParser),
-    APIMethod(name='get_account_info', request=StockExchangeGetAccountInfoRequest, parser=StockExchangeResponseParser)
+
+    # Private methods
+
+    APIMethod(name='get_account_info', request=StockExchangeGetAccountInfoRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='get_active_orders', request=StockExchangeGetActiveOrdersRequest,
+              parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='trade', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='cancel_order', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='private_trade_history', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='transactions_history', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='private_grafic', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='deposit', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='withdraw', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='generate_wallets', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='ticket', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='get_tickets', request=None, parser=StockExchangeResponseParser),
+    # TODO: APIMethod(name='reply_ticket', request=None, parser=StockExchangeResponseParser),
 )
 
 

@@ -15,7 +15,7 @@ __all__ = ('TickerRequest', 'PricesRequest', 'StockExchangeRequest', 'ENCODING',
            'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest', 'DepositRequest',
            'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest', 'WithdrawRequest',
            'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest', 'GenerateWalletsRequest',
-           'TicketRequest', 'GetTicketsRequest')
+           'TicketRequest', 'GetTicketsRequest', 'ReplyTicketRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -355,3 +355,14 @@ class GetTicketsRequest(StockExchangePrivateRequest):
             'status': status
         }
         super(GetTicketsRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class ReplyTicketRequest(StockExchangePrivateRequest):
+    api_method = 'ReplyTicket'
+
+    def __init__(self, ticket_id: int, message: str, **kwargs):
+        request_data = {
+            'ticket_id': ticket_id,
+            'message': message
+        }
+        super(ReplyTicketRequest, self).__init__(request_data=request_data, **kwargs)

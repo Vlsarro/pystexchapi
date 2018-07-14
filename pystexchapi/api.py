@@ -10,7 +10,7 @@ from pystexchapi.request import TickerRequest, PricesRequest, StockExchangeReque
     MarketSummaryRequest, TradeHistoryRequest, OrderbookRequest, GraficPublicRequest, GetAccountInfoRequest, \
     GetActiveOrdersRequest, TradeRequest, CancelOrderRequest, PrivateTradeHistoryRequest, TransactionHistoryRequest, \
     GraficPrivateRequest, DepositRequest, WithdrawRequest, GenerateWalletsRequest, TicketRequest, GetTicketsRequest, \
-    ENCODING
+    ReplyTicketRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 
 
@@ -64,7 +64,7 @@ DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
     APIMethod(name='generate_wallets', request=GenerateWalletsRequest, parser=StockExchangeResponseParser),
     APIMethod(name='ticket', request=TicketRequest, parser=StockExchangeResponseParser),
     APIMethod(name='get_tickets', request=GetTicketsRequest, parser=StockExchangeResponseParser),
-    # TODO: APIMethod(name='reply_ticket', request=None, parser=StockExchangeResponseParser),
+    APIMethod(name='reply_ticket', request=ReplyTicketRequest, parser=StockExchangeResponseParser),
 )
 
 

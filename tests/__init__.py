@@ -6,7 +6,7 @@ __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARK
            'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE', 'CANCEL_ORDER_RESPONSE',
            'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE',
            'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE', 'GENERATE_WALLETS_RESPONSE', 'TICKET_RESPONSE',
-           'GET_TICKETS_RESPONSE')
+           'GET_TICKETS_RESPONSE', 'REPLY_TICKET_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -462,5 +462,13 @@ GET_TICKETS_RESPONSE = json.dumps({
                 }
             }
         }
+    }
+})
+
+REPLY_TICKET_RESPONSE = json.dumps({
+    'success': 1,
+    'data': {
+        'msg': 'Ticket reply created',
+        'ticket_massage_id': '6'
     }
 })

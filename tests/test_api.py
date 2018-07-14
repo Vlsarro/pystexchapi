@@ -6,33 +6,20 @@ import requests_mock
 from unittest import TestCase
 from unittest.mock import patch
 
-from pystexchapi.api import StocksExchangeAPI
-from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequest, ENCODING
+from pystexchapi.api import StocksExchangeAPI, APIMethod
+from pystexchapi.exc import APINoMethodException
+from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequest, ENCODING, StockExchangeRequest
 from pystexchapi.response import StockExchangeResponseParser
-from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE
+from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
+    MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE
 
 
-@requests_mock.Mocker()
 class TestStocksExchangeAPI(TestCase):
 
     def setUp(self):
         self.shared_secret = 'KW9Wixy1zj9uNyzOjFbPu7YmU4iVJ1n3lEzqVAe5byx93IwugVQdlhoN03MzZW75'
         self.api = StocksExchangeAPI(api_key='ak9uh9ezAK3w7FivoRdEnIFjBg7Ywjz4sImOpIzE',
                                      api_secret=self.shared_secret)
-
-    def assertTicker(self, m):
-        self.assertTrue(m.called)
-        self.assertEqual(m.call_count, 1)
-
-        req = m.request_history[0]
-        self.assertEqual(req.method, 'GET')
-        self.assertEqual(req.url, 'https://app.stocks.exchange/api2/ticker')
-
-        req_headers = req.headers
-        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
-        self.assertEqual(req_headers['Content-Type'], 'application/json')
-
-        return req
 
     def assertAuth(self, m):
         req = m.request_history[0]
@@ -43,22 +30,40 @@ class TestStocksExchangeAPI(TestCase):
         self.assertTrue(hmac.compare_digest(req_sign, sign), msg='Calculated sign: {}\n'
                                                                  'Sign in request: {}'.format(sign, req_sign))
 
+    def assertPublicMethod(self, method_name, m):
+        self.assertTrue(m.called)
+        self.assertEqual(m.call_count, 1)
+
+        req = m.request_history[0]
+        self.assertEqual(req.method, 'GET')
+        self.assertEqual(req.url, 'https://app.stocks.exchange/api2/{}'.format(method_name))
+
+        req_headers = req.headers
+        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
+        self.assertEqual(req_headers['Content-Type'], 'application/json')
+
+        return req
+
+    @requests_mock.Mocker()
     def test_query(self, m):
         # test with predefined ticker request
-        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
+        _method_name = 'ticker'
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=TICKER_RESPONSE)
 
         _req = StockExchangeTickerRequest()
         response = self.api._query(_req)
 
-        self.assertTicker(m)
+        self.assertPublicMethod(_method_name, m)
         self.assertIsInstance(response, requests.Response)
 
+    @requests_mock.Mocker()
     def test_public_query(self, m):
         # test with predefined ticker request
-        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
+        _method_name = 'ticker'
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=TICKER_RESPONSE)
         data = self.api.query(StockExchangeResponseParser, StockExchangeTickerRequest)
 
-        self.assertTicker(m)
+        self.assertPublicMethod(_method_name, m)
         self.assertTrue(data)
 
         # test queries with saving
@@ -79,8 +84,39 @@ class TestStocksExchangeAPI(TestCase):
             self.assertEqual(m.call_count, 3)
             self.assertTrue(data)
 
+    def test_get_available_methods(self):
+        available_methods = self.api.get_available_methods()
+        self.assertIn('ticker', available_methods)
+        self.assertIn('prices', available_methods)
+        self.assertIn('currencies', available_methods)
+        self.assertIn('markets', available_methods)
+        self.assertIn('market_summary', available_methods)
+        self.assertIn('trade_history', available_methods)
+        self.assertIn('orderbook', available_methods)
+        self.assertIn('grafic', available_methods)
+        self.assertIn('get_account_info', available_methods)
+
+    def test_update_methods(self):
+        _method_name = 'newmethod'
+        new_method = APIMethod(name=_method_name, request=StockExchangeRequest, parser=StockExchangeResponseParser)
+        new_methods = {new_method.name: new_method}
+
+        new_api = StocksExchangeAPI(api_methods=new_methods)
+        self.assertIn(_method_name, new_api.get_available_methods())
+
+        self.assertNotIn(_method_name, self.api.get_available_methods())
+        self.api.update_api_methods(api_methods=new_methods)
+        self.assertIn(_method_name, self.api.get_available_methods())
+
+    def test_raise_on_absent_method(self):
+        with self.assertRaises(APINoMethodException) as cm:
+            self.api.call('karabas')
+
+        self.assertEqual(cm.exception.msg, 'API does not provide <karabas> method')
+
     @patch('time.time')
-    def test_public_query_with_saving(self, m, time_mock):
+    @requests_mock.Mocker()
+    def test_public_query_with_saving(self, time_mock, m):
         # test with predefined ticker request
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
         time_mock.return_value = 130.0
@@ -109,70 +145,135 @@ class TestStocksExchangeAPI(TestCase):
     # Test public API methods
     ######################################################
 
-    def test_get_available_methods(self, m):
-        available_methods = self.api.get_available_methods()
-        self.assertIn('ticker', available_methods)
-        self.assertIn('prices', available_methods)
-        self.assertIn('currencies', available_methods)
-        self.assertIn('markets', available_methods)
-        self.assertIn('market_summary', available_methods)
-        self.assertIn('trade_history', available_methods)
-        self.assertIn('orderbook', available_methods)
-        self.assertIn('grafic', available_methods)
-        self.assertIn('get_account_info', available_methods)
-
+    @requests_mock.Mocker()
     def test_ticker(self, m):
-        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
-        data = self.api.call('ticker')
+        _method_name = 'ticker'
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=TICKER_RESPONSE)
+        data = self.api.call(_method_name)
 
-        self.assertTicker(m)
+        self.assertPublicMethod(method_name=_method_name, m=m)
 
         self.assertTrue(data)
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 1)
 
+    @requests_mock.Mocker()
     def test_prices(self, m):
-        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='prices'), text=PRICES_RESPONSE)
-        data = self.api.call('prices')
+        _method_name = 'prices'
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=PRICES_RESPONSE)
+        data = self.api.call(_method_name)
 
-        self.assertTrue(m.called)
-        self.assertEqual(m.call_count, 1)
-
-        req = m.request_history[0]
-        self.assertEqual(req.method, 'GET')
-        self.assertEqual(req.url, 'https://app.stocks.exchange/api2/prices')
-
-        req_headers = req.headers
-        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
-        self.assertEqual(req_headers['Content-Type'], 'application/json')
+        self.assertPublicMethod(_method_name, m)
 
         self.assertTrue(data)
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 3)
 
+    @requests_mock.Mocker()
     def test_markets(self, m):
-        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='markets'), text=MARKETS_RESPONSE)
+        _method_name = 'markets'
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=MARKETS_RESPONSE)
 
-        data = self.api.call('markets')
-        self.assertTrue(m.called)
-        self.assertEqual(m.call_count, 1)
-
-        req = m.request_history[0]
-        self.assertEqual(req.method, 'GET')
-        self.assertEqual(req.url, 'https://app.stocks.exchange/api2/markets')
-
-        req_headers = req.headers
-        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
-        self.assertEqual(req_headers['Content-Type'], 'application/json')
-
+        data = self.api.call(_method_name)
+        self.assertPublicMethod(_method_name, m)
         self.assertTrue(data)
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 2)
+
+    @requests_mock.Mocker()
+    def test_currencies(self, m):
+        _method_name = 'currencies'
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=CURRENCIES_RESPONSE)
+
+        data = self.api.call(_method_name)
+        self.assertPublicMethod(_method_name, m)
+        self.assertTrue(data)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+
+    @requests_mock.Mocker()
+    def test_market_summary(self, m):
+        _method_name = 'market_summary'
+        _method_url = '{}/BTC/USD'.format(_method_name)
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url),
+                       text=MARKET_SUMMARY_RESPONSE)
+
+        data = self.api.call(_method_name, currency1='BTC', currency2='USD')
+        self.assertPublicMethod(_method_url, m)
+        self.assertTrue(data)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1)
+
+        with self.assertRaises(TypeError):
+            self.api.call(_method_name)  # currency1 and currency2 are required arguments for request
+
+    @requests_mock.Mocker()
+    def test_trade_history(self, m):
+        _method_name = 'trade_history'
+        _currency1 = 'BTC'
+        _currency2 = 'NXT'
+        _method_url = '{}?pair={}_{}'.format('trades', _currency1, _currency2)
+
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url), text=TRADE_HISTORY_RESPONSE)
+
+        data = self.api.call(_method_name, currency1='BTC', currency2='NXT')
+        self.assertPublicMethod(_method_url, m)
+        self.assertTrue(data)
+        self.assertEqual(data['success'], 1)
+
+        result = data['result']
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 3)
+
+        with self.assertRaises(TypeError):
+            self.api.call(_method_name)  # currency1 and currency2 are required arguments for request
+
+    @requests_mock.Mocker()
+    def test_orderbook(self, m):
+        _method_name = 'orderbook'
+        _currency1 = 'BTC'
+        _currency2 = 'NXT'
+        _method_url = '{}?pair={}_{}'.format(_method_name, _currency1, _currency2)
+
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url), text=ORDERBOOK_RESPONSE)
+
+        data = self.api.call(_method_name, currency1='BTC', currency2='NXT')
+        self.assertPublicMethod(_method_url, m)
+        self.assertTrue(data)
+        self.assertEqual(data['success'], 1)
+
+        result = data['result']
+        self.assertIsInstance(result, dict)
+        self.assertIn('buy', result)
+        self.assertIn('sell', result)
+
+        with self.assertRaises(TypeError):
+            self.api.call(_method_name)  # currency1 and currency2 are required arguments for request
+
+    @requests_mock.Mocker()
+    def test_public_grafic(self, m):
+        _method_name = 'grafic'
+        _currency1 = 'BTC'
+        _currency2 = 'NXT'
+        _method_url = '{}?pair={}_{}&interval=1D&order=DESC&count=50'.format('grafic_public', _currency1, _currency2)
+        m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url), text=PUBLIC_GRAFIC_RESPONSE)
+
+        data = self.api.call(_method_name, currency1='BTC', currency2='NXT')
+        self.assertPublicMethod(_method_url, m)
+        self.assertTrue(data)
+        self.assertEqual(data['success'], 1)
+
+        result = data['data']
+        self.assertIsInstance(result, dict)
+
+        with self.assertRaises(TypeError):
+            self.api.call(_method_name)  # currency1 and currency2 are required arguments for request
 
     ######################################################
     # Test private API methods
     ######################################################
 
+    @requests_mock.Mocker()
     def test_get_account_info(self, m):
         m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=GET_ACCOUT_INFO_RESPONSE)
 

@@ -6,11 +6,9 @@ import warnings
 from typing import Type
 
 from pystexchapi.exc import APINoMethodException
-from pystexchapi.request import TickerRequest, PricesRequest, StockExchangeRequest, \
-    CurrenciesRequest, MarketsRequest, MarketSummaryRequest, \
-    TradeHistoryRequest, OrderbookRequest, GraficPublicRequest, \
-    GetAccountInfoRequest, GetActiveOrdersRequest, TradeRequest, \
-    CancelOrderRequest, PrivateTradeHistoryRequest, TransactionHistoryRequest,\
+from pystexchapi.request import TickerRequest, PricesRequest, StockExchangeRequest, CurrenciesRequest, MarketsRequest, \
+    MarketSummaryRequest, TradeHistoryRequest, OrderbookRequest, GraficPublicRequest, GetAccountInfoRequest, \
+    GetActiveOrdersRequest, TradeRequest, CancelOrderRequest, PrivateTradeHistoryRequest, TransactionHistoryRequest, \
     ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 

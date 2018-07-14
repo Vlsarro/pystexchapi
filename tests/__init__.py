@@ -5,7 +5,7 @@ __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARK
            'GET_ACCOUNT_INFO_RESPONSE', 'CURRENCIES_RESPONSE', 'MARKET_SUMMARY_RESPONSE', 'TRADE_HISTORY_RESPONSE',
            'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE', 'CANCEL_ORDER_RESPONSE',
            'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE',
-           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE', 'GENERATE_WALLETS_RESPONSE')
+           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE', 'GENERATE_WALLETS_RESPONSE', 'TICKET_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -413,5 +413,17 @@ GENERATE_WALLETS_RESPONSE = json.dumps({
         'msg': 'Address generated',
         'code': 'BTC',
         'address': '1GgcGVRfxY8C5WXAkzt1qxKTi66HKzgyRL'
+    }
+})
+
+TICKET_RESPONSE = json.dumps({
+    'success': 1,
+    'data': {
+        'msg': 'Ticket created',
+        'ticket_id': '3',
+        'subject': 'Cann’t get deposit',
+        'ticket_category_id': '2',
+        'ticket_status_id': '1',
+        'message': 'Cann’t get deposit to my ETH wallet'
     }
 })

@@ -9,7 +9,7 @@ from pystexchapi.exc import APINoMethodException
 from pystexchapi.request import TickerRequest, PricesRequest, StockExchangeRequest, CurrenciesRequest, MarketsRequest, \
     MarketSummaryRequest, TradeHistoryRequest, OrderbookRequest, GraficPublicRequest, GetAccountInfoRequest, \
     GetActiveOrdersRequest, TradeRequest, CancelOrderRequest, PrivateTradeHistoryRequest, TransactionHistoryRequest, \
-    GraficPrivateRequest, DepositRequest, WithdrawRequest, GenerateWallets, ENCODING
+    GraficPrivateRequest, DepositRequest, WithdrawRequest, GenerateWalletsRequest, TicketRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 
 
@@ -60,8 +60,8 @@ DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
     APIMethod(name='private_grafic', request=GraficPrivateRequest, parser=StockExchangeResponseParser),
     APIMethod(name='deposit', request=DepositRequest, parser=StockExchangeResponseParser),
     APIMethod(name='withdraw', request=WithdrawRequest, parser=StockExchangeResponseParser),
-    APIMethod(name='generate_wallets', request=GenerateWallets, parser=StockExchangeResponseParser),
-    # TODO: APIMethod(name='ticket', request=None, parser=StockExchangeResponseParser),
+    APIMethod(name='generate_wallets', request=GenerateWalletsRequest, parser=StockExchangeResponseParser),
+    APIMethod(name='ticket', request=TicketRequest, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='get_tickets', request=None, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='reply_ticket', request=None, parser=StockExchangeResponseParser),
 )

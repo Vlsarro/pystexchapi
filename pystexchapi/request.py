@@ -14,7 +14,8 @@ from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 __all__ = ('TickerRequest', 'PricesRequest', 'StockExchangeRequest', 'ENCODING', 'CurrenciesRequest', 'MarketsRequest',
            'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest', 'DepositRequest',
            'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest', 'WithdrawRequest',
-           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest', 'GenerateWallets')
+           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest', 'GenerateWalletsRequest',
+           'TicketRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -324,5 +325,21 @@ class WithdrawRequest(StockExchangePrivateRequest):
         super(WithdrawRequest, self).__init__(request_data=request_data, **kwargs)
 
 
-class GenerateWallets(DepositRequest):
+class GenerateWalletsRequest(DepositRequest):
     api_method = 'GenerateWallets'
+
+
+class TicketRequest(StockExchangePrivateRequest):
+    api_method = 'Ticket'
+
+    def __init__(self, category: int, subject: str, message: str, currency_name=None, **kwargs):
+        request_data = {
+            'category': category,
+            'subject': subject,
+            'message': message
+        }
+
+        if currency_name:
+            request_data['currency_name'] = currency_name
+
+        super(TicketRequest, self).__init__(request_data=request_data, **kwargs)

@@ -280,4 +280,4 @@ class StockExchangeTransactionHistoryRequest(StockExchangePrivateRequest):
         }
         set_not_none_dict_kwargs(request_data, **optional_none_params)
 
-        super(StockExchangeTransactionHistoryRequest, self).__init__(**kwargs)
+        super(StockExchangeTransactionHistoryRequest, self).__init__(request_data=request_data, **kwargs)

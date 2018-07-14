@@ -4,7 +4,7 @@ import json
 __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARKETS_RESPONSE', 'ORDERBOOK_RESPONSE',
            'GET_ACCOUNT_INFO_RESPONSE', 'CURRENCIES_RESPONSE', 'MARKET_SUMMARY_RESPONSE', 'TRADE_HISTORY_RESPONSE',
            'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE', 'CANCEL_ORDER_RESPONSE',
-           'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE')
+           'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -316,36 +316,64 @@ PRIVATE_TRADE_HISTORY_RESPONSE = json.dumps({
 })
 
 TRANSACTIONS_HISTORY_RESPONSE = json.dumps({
-    "success": 1,
-    "data": {
-        "DEPOSIT": {
-            "113": {
-                "Currency": "NXT",
-                "Amount": "11",
-                "Deposit_fee": "2NXT",
-                "TX_id": "17388534115659312996",
-                "Status": "Finished",
-                "Date": 1461361743
+    'success': 1,
+    'data': {
+        'DEPOSIT': {
+            '113': {
+                'Currency': 'NXT',
+                'Amount': '11',
+                'Deposit_fee': '2NXT',
+                'TX_id': '17388534115659312996',
+                'Status': 'Finished',
+                'Date': 1461361743
             },
-            "112": {
-                "Currency": "NXT",
-                "Amount": "10",
-                "Deposit_fee": "2NXT",
-                "TX_id": "4992090663590407388",
-                "Status": "Finished",
-                "Date": 1461360604
+            '112': {
+                'Currency': 'NXT',
+                'Amount': '10',
+                'Deposit_fee': '2NXT',
+                'TX_id': '4992090663590407388',
+                'Status': 'Finished',
+                'Date': 1461360604
             }
         },
-        "WITHDRAWAL": {
-            "15": {
-                "Currency": "NXT",
-                "Amount": "12",
-                "Withdrawal_Fee": "1NXT",
-                "Address": "NXT-QLF8-K5L8-VPRE-CYVAX",
-                "TX_id": "1748174097384839713",
-                "Status": "FINISHED",
-                "Date": 1461363498
+        'WITHDRAWAL': {
+            '15': {
+                'Currency': 'NXT',
+                'Amount': '12',
+                'Withdrawal_Fee': '1NXT',
+                'Address': 'NXT-QLF8-K5L8-VPRE-CYVAX',
+                'TX_id': '1748174097384839713',
+                'Status': 'FINISHED',
+                'Date': 1461363498
             }
         }
+    }
+})
+
+PRIVATE_GRAFIC_RESPONSE = json.dumps({
+    'success': 1,
+    'data': { 
+        'pair': 'BTC_ETH',
+        'since': '2016-05-01 00:00:00',
+        'end': '2016-07-01 00:01:15',
+        'count_pages': 3,
+        'count': '2',
+        'current_page': 1,
+        'graf': [
+            { 
+                'open': '5350.50000000',
+                'close': '5358.70000000',
+                'low': '5320.90000000',
+                'high': '5361.00000000',
+                'date': '2016-05-02 00:00:00'
+            },
+            {
+                'open': '16.00000000',
+                'close': '16.00000000',
+                'low': '16.00000000',
+                'high': '16.00000000',
+                'date': '2016-05-03 00:00:00'
+            }
+        ]
     }
 })

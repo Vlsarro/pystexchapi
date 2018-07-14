@@ -14,7 +14,7 @@ from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 __all__ = ('TickerRequest', 'PricesRequest', 'StockExchangeRequest', 'ENCODING', 'CurrenciesRequest', 'MarketsRequest',
            'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest',
            'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest',
-           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest')
+           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -96,11 +96,16 @@ class OrderbookRequest(TradeHistoryRequest):
     api_method = 'orderbook'
 
 
+DEFAULT_ORDER = 'DESC'
+DEFAULT_COUNT = 50
+DEFAULT_INTERVAL = '1D'
+
+
 class GraficPublicRequest(StockExchangeRequest):
     api_method = 'grafic_public'
 
-    def __init__(self, currency1: str, currency2: str, order: str='DESC', count: int=50, interval: str='1D',
-                 since: str=None, end: str=None, **kwargs):
+    def __init__(self, currency1: str, currency2: str, order: str=DEFAULT_ORDER, count: int=DEFAULT_COUNT,
+                 interval: str=DEFAULT_INTERVAL, since: str=None, end: str=None, **kwargs):
         params = {
             'pair': '{}_{}'.format(currency1, currency2),
             'interval': interval,
@@ -108,11 +113,7 @@ class GraficPublicRequest(StockExchangeRequest):
             'count': count
         }
 
-        if since:
-            params['since'] = since
-
-        if end:
-            params['end'] = end
+        set_not_none_dict_kwargs(params, since=since, end=end)
 
         super(GraficPublicRequest, self).__init__(params=params, **kwargs)
 
@@ -158,8 +159,6 @@ class GetAccountInfoRequest(StockExchangePrivateRequest):
     api_method = 'GetInfo'
 
 
-DEFAULT_COUNT = 50
-DEFAULT_ORDER = 'DESC'
 DEFAULT_TYPE = 'ALL'
 DEFAULT_OWNER = 'OWN'
 
@@ -279,3 +278,27 @@ class TransactionHistoryRequest(StockExchangePrivateRequest):
         set_not_none_dict_kwargs(request_data, **optional_none_params)
 
         super(TransactionHistoryRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class GraficPrivateRequest(StockExchangePrivateRequest):
+    api_method = 'Grafic'
+
+    def __init__(self, pair: str=DEFAULT_TYPE, order: str=DEFAULT_ORDER, count: int=DEFAULT_COUNT,
+                 interval: str=DEFAULT_INTERVAL, page: int=1, since: str=None, end: str=None, **kwargs):
+
+        # FIXME: similiar to GraficPublicRequest
+
+        if count and count > 100:
+            raise ValueError('count cannot be greater than {}. Currently: {} {}'.format(100, count,
+                                                                                        type(count)))
+
+        request_data = {
+            'pair': pair,
+            'order': order,
+            'count': count,
+            'interval': interval,
+            'page': page
+        }
+        set_not_none_dict_kwargs(request_data, since=since, end=end)
+
+        super(GraficPrivateRequest, self).__init__(request_data=request_data, **kwargs)

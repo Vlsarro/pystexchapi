@@ -109,6 +109,18 @@ class TestStocksExchangeAPI(TestCase):
     # Test public API methods
     ######################################################
 
+    def test_get_available_methods(self, m):
+        available_methods = self.api.get_available_methods()
+        self.assertIn('ticker', available_methods)
+        self.assertIn('prices', available_methods)
+        self.assertIn('currencies', available_methods)
+        self.assertIn('markets', available_methods)
+        self.assertIn('market_summary', available_methods)
+        self.assertIn('trade_history', available_methods)
+        self.assertIn('orderbook', available_methods)
+        self.assertIn('grafic', available_methods)
+        self.assertIn('get_account_info', available_methods)
+
     def test_ticker(self, m):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
         data = self.api.call('ticker')

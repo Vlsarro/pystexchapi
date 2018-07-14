@@ -132,3 +132,6 @@ class StocksExchangeAPI(object):
             })
 
         return self.query(_method.parser, _method.request, **kwargs)
+
+    def get_available_methods(self):
+        return self.api_methods.keys()

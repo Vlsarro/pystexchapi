@@ -12,7 +12,7 @@ from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequ
 from pystexchapi.response import StockExchangeResponseParser
 from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
-    GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE
+    GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE
 
 
 class TestStocksExchangeAPI(TestCase):
@@ -274,12 +274,10 @@ class TestStocksExchangeAPI(TestCase):
     # Test private API methods
     ######################################################
 
-    @requests_mock.Mocker()
-    def test_get_account_info(self, m):
-        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=GET_ACCOUT_INFO_RESPONSE)
+    def assertPrivateMethod(self, method_name, response_data, m, **request_params):
+        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=response_data)
 
-        result = self.api.call('get_account_info')
-
+        result = self.api.call(method_name, **request_params)
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertAuth(m)
@@ -292,66 +290,35 @@ class TestStocksExchangeAPI(TestCase):
         req_headers = req.headers
         self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
         self.assertEqual(req_headers['Content-Type'], 'application/json')
+        return req
+
+    @requests_mock.Mocker()
+    def test_get_account_info(self, m):
+        self.assertPrivateMethod('get_account_info', response_data=GET_ACCOUT_INFO_RESPONSE, m=m)
 
     @requests_mock.Mocker()
     def test_get_active_orders(self, m):
-        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=GET_ACTIVE_ORDERS_RESPONSE)
-
-        result = self.api.call('get_active_orders')
-        self.assertTrue(m.called)
-        self.assertEqual(m.call_count, 1)
-        self.assertAuth(m)
-        self.assertTrue(result)
-        self.assertIsInstance(result, dict)
-        self.assertEqual(result.get('success'), 1)
-        self.assertIn('data', result)
-
-        req = m.request_history[0]
-        req_headers = req.headers
-        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
-        self.assertEqual(req_headers['Content-Type'], 'application/json')
+        self.assertPrivateMethod('get_active_orders', response_data=GET_ACTIVE_ORDERS_RESPONSE, m=m)
 
     @requests_mock.Mocker()
     def test_trade(self, m):
-        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=TRADE_RESPONSE)
-
-        result = self.api.call('trade', _type='BUY', currency1='BTC', currency2='NXT', amount=2345, rate=1)
-        self.assertTrue(m.called)
-        self.assertEqual(m.call_count, 1)
-        self.assertAuth(m)
-        self.assertTrue(result)
-        self.assertIsInstance(result, dict)
-        self.assertEqual(result.get('success'), 1)
-        self.assertIn('data', result)
-
-        req = m.request_history[0]
-        req_headers = req.headers
-        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
-        self.assertEqual(req_headers['Content-Type'], 'application/json')
+        _method_name = 'trade'
+        self.assertPrivateMethod(_method_name, response_data=TRADE_RESPONSE, m=m, _type='BUY', currency1='BTC',
+                                 currency2='NXT', amount=2345, rate=1)
 
         with self.assertRaises(ValueError):
-            self.api.call('trade', _type='DUMP', currency1='BTC', currency2='NXT', amount=2345, rate=1)
+            self.api.call(_method_name, _type='DUMP', currency1='BTC', currency2='NXT', amount=2345, rate=1)
 
         with self.assertRaises(ValueError):
-            self.api.call('trade', _type='BUY', currency1='BTC', currency2='NXT', amount=-235, rate=1)
+            self.api.call(_method_name, _type='BUY', currency1='BTC', currency2='NXT', amount=-235, rate=1)
 
         with self.assertRaises(ValueError):
-            self.api.call('trade', _type='BUY', currency1='BTC', currency2='NXT', amount=2345, rate=-1)
+            self.api.call(_method_name, _type='BUY', currency1='BTC', currency2='NXT', amount=2345, rate=-1)
 
     @requests_mock.Mocker()
     def test_cancel_order(self, m):
-        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=CANCEL_ORDER_RESPONSE)
+        self.assertPrivateMethod('cancel_order', response_data=CANCEL_ORDER_RESPONSE, m=m, order_id=45)
 
-        result = self.api.call('cancel_order', order_id=45)
-        self.assertTrue(m.called)
-        self.assertEqual(m.call_count, 1)
-        self.assertAuth(m)
-        self.assertTrue(result)
-        self.assertIsInstance(result, dict)
-        self.assertEqual(result.get('success'), 1)
-        self.assertIn('data', result)
-
-        req = m.request_history[0]
-        req_headers = req.headers
-        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
-        self.assertEqual(req_headers['Content-Type'], 'application/json')
+    @requests_mock.Mocker()
+    def test_private_trade_history(self, m):
+        self.assertPrivateMethod('private_trade_history', response_data=PRIVATE_TRADE_HISTORY_RESPONSE, m=m)

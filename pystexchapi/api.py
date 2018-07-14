@@ -10,7 +10,7 @@ from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesR
     StockExchangeCurrenciesRequest, StockExchangeMarketsRequest, StockExchangeMarketSummaryRequest, \
     StockExchangeTradeHistoryRequest, StockExchangeOrderbookRequest, StockExchangeGraficPublicRequest, \
     StockExchangeGetAccountInfoRequest, StockExchangeGetActiveOrdersRequest, StockExchangeTradeRequest, \
-    StockExchangeCancelOrderRequest, ENCODING
+    StockExchangeCancelOrderRequest, StockExchangePrivateTradeHistoryRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 
 
@@ -57,7 +57,8 @@ DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
               parser=StockExchangeResponseParser),
     APIMethod(name='trade', request=StockExchangeTradeRequest, parser=StockExchangeResponseParser),
     APIMethod(name='cancel_order', request=StockExchangeCancelOrderRequest, parser=StockExchangeResponseParser),
-    # TODO: APIMethod(name='private_trade_history', request=None, parser=StockExchangeResponseParser),
+    APIMethod(name='private_trade_history', request=StockExchangePrivateTradeHistoryRequest,
+              parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='transactions_history', request=None, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='private_grafic', request=None, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='deposit', request=None, parser=StockExchangeResponseParser),

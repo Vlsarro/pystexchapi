@@ -14,7 +14,7 @@ __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExc
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
            'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
            'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest', 'StockExchangeTradeRequest',
-           'StockExchangeCancelOrderRequest')
+           'StockExchangeCancelOrderRequest', 'StockExchangePrivateTradeHistoryRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -217,3 +217,23 @@ class StockExchangeCancelOrderRequest(StockExchangePrivateRequest):
             'order_id': order_id
         }
         super(StockExchangeCancelOrderRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class StockExchangePrivateTradeHistoryRequest(StockExchangePrivateRequest):
+    api_method = 'TradeHistory'
+
+    def __init__(self, _from: int=None, from_id: str=None, end_id: str=None, since: str=None, end: str=None,
+                 pair: str='ALL', count: int=50, order: str='DESC', owner: str='OWN', status: int=3, **kwargs):
+        request_data = {
+            'pair': pair,
+            'from': _from,
+            'count': count,
+            'from_id': from_id,
+            'end_id': end_id,
+            'order': order,
+            'since': since,
+            'end': end,
+            'status': status,
+            'owner': owner
+        }
+        super(StockExchangePrivateTradeHistoryRequest, self).__init__(request_data=request_data, **kwargs)

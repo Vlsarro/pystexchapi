@@ -5,7 +5,7 @@ __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARK
            'GET_ACCOUNT_INFO_RESPONSE', 'CURRENCIES_RESPONSE', 'MARKET_SUMMARY_RESPONSE', 'TRADE_HISTORY_RESPONSE',
            'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE', 'CANCEL_ORDER_RESPONSE',
            'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE',
-           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE')
+           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE', 'GENERATE_WALLETS_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -404,5 +404,14 @@ WITHDRAW_RESPONSE = json.dumps({
             'timezone': 'UTC'
         },
         'msg': 'Message with confirmation sent to your email address'
+    }
+})
+
+GENERATE_WALLETS_RESPONSE = json.dumps({
+    'success': 1,
+    'data': { 
+        'msg': 'Address generated',
+        'code': 'BTC',
+        'address': '1GgcGVRfxY8C5WXAkzt1qxKTi66HKzgyRL'
     }
 })

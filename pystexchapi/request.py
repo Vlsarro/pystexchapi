@@ -14,7 +14,7 @@ from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 __all__ = ('TickerRequest', 'PricesRequest', 'StockExchangeRequest', 'ENCODING', 'CurrenciesRequest', 'MarketsRequest',
            'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest', 'DepositRequest',
            'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest', 'WithdrawRequest',
-           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest')
+           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest', 'GenerateWallets')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -322,3 +322,7 @@ class WithdrawRequest(StockExchangePrivateRequest):
             'amount': amount
         }
         super(WithdrawRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class GenerateWallets(DepositRequest):
+    api_method = 'GenerateWallets'

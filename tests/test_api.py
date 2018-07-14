@@ -12,7 +12,8 @@ from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequ
 from pystexchapi.response import StockExchangeResponseParser
 from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUNT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
-    GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE
+    GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE, \
+    TRANSACTIONS_HISTORY_RESPONSE
 
 
 class TestStocksExchangeAPI(TestCase):
@@ -298,7 +299,11 @@ class TestStocksExchangeAPI(TestCase):
 
     @requests_mock.Mocker()
     def test_get_active_orders(self, m):
-        self.assertPrivateMethod('get_active_orders', response_data=GET_ACTIVE_ORDERS_RESPONSE, m=m)
+        _method_name = 'get_active_orders'
+        self.assertPrivateMethod(_method_name, response_data=GET_ACTIVE_ORDERS_RESPONSE, m=m)
+
+        with self.assertRaises(ValueError):
+            self.api.call(_method_name, count=125)
 
     @requests_mock.Mocker()
     def test_trade(self, m):
@@ -322,3 +327,11 @@ class TestStocksExchangeAPI(TestCase):
     @requests_mock.Mocker()
     def test_private_trade_history(self, m):
         self.assertPrivateMethod('private_trade_history', response_data=PRIVATE_TRADE_HISTORY_RESPONSE, m=m)
+
+    @requests_mock.Mocker()
+    def test_transactions_history(self, m):
+        _method_name = 'transactions_history'
+        self.assertPrivateMethod(_method_name, response_data=TRANSACTIONS_HISTORY_RESPONSE, m=m)
+
+        with self.assertRaises(ValueError):
+            self.api.call(_method_name, count=125)

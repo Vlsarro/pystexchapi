@@ -7,6 +7,7 @@ import hmac
 import hashlib
 from requests import PreparedRequest
 
+from pystexchapi import ORDER_STATUS
 from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 
 
@@ -14,7 +15,8 @@ __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExc
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
            'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
            'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest', 'StockExchangeTradeRequest',
-           'StockExchangeCancelOrderRequest', 'StockExchangePrivateTradeHistoryRequest')
+           'StockExchangeCancelOrderRequest', 'StockExchangePrivateTradeHistoryRequest',
+           'StockExchangeTransactionHistoryRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -158,12 +160,22 @@ class StockExchangeGetAccountInfoRequest(StockExchangePrivateRequest):
     api_method = 'GetInfo'
 
 
+DEFAULT_COUNT = 50
+DEFAULT_ORDER = 'DESC'
+DEFAULT_TYPE = 'ALL'
+DEFAULT_OWNER = 'OWN'
+
+
 class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
     api_method = 'ActiveOrders'
 
-    def __init__(self, _from: str=None, from_id: str=None, end_id: str=None,
-                 since: str=None, end: str=None, pair: str='ALL', count: int=50, order: str='DESC',
-                 _type: str='ALL', owner: str='OWN', **kwargs):
+    def __init__(self, _from: str=None, from_id: str=None, end_id: str=None, since: str=None, end: str=None,
+                 pair: str=DEFAULT_TYPE, count: int=DEFAULT_COUNT, order: str=DEFAULT_ORDER, _type: str=DEFAULT_TYPE,
+                 owner: str=DEFAULT_OWNER, **kwargs):
+
+        if count and count > DEFAULT_COUNT:
+            raise ValueError('count cannot be greater than {}. Currently: {} {}'.format(DEFAULT_COUNT, count,
+                                                                                        type(count)))
 
         request_data = {
             'pair': pair,
@@ -223,7 +235,8 @@ class StockExchangePrivateTradeHistoryRequest(StockExchangePrivateRequest):
     api_method = 'TradeHistory'
 
     def __init__(self, _from: int=None, from_id: str=None, end_id: str=None, since: str=None, end: str=None,
-                 pair: str='ALL', count: int=50, order: str='DESC', owner: str='OWN', status: int=3, **kwargs):
+                 pair: str='ALL', count: int=DEFAULT_COUNT, order: str=DEFAULT_ORDER, owner: str=DEFAULT_OWNER,
+                 status: int=3, **kwargs):
         request_data = {
             'pair': pair,
             'from': _from,
@@ -237,3 +250,34 @@ class StockExchangePrivateTradeHistoryRequest(StockExchangePrivateRequest):
             'owner': owner
         }
         super(StockExchangePrivateTradeHistoryRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class StockExchangeTransactionHistoryRequest(StockExchangePrivateRequest):
+    api_method = 'TransHistory'
+    
+    def __init__(self, currency: str=DEFAULT_TYPE, _from: int=None, count: int=DEFAULT_COUNT, from_id: int=None,
+                 end_id: int=None, order: str=DEFAULT_ORDER, since: str=None, end: str=None,
+                 status: int=ORDER_STATUS.FINISHED, **kwargs):
+
+        # FIXME: similar to StockExchangeGetActiveOrdersRequest
+
+        if count and count > DEFAULT_COUNT:
+            raise ValueError('count cannot be greater than {}. Currently: {} {}'.format(DEFAULT_COUNT, count,
+                                                                                        type(count)))
+
+        request_data = {
+            'currency': currency,
+            'count': count,
+            'order': order,
+            'status': status
+        }
+        optional_none_params = {
+            'from': _from,
+            'from_id': from_id,
+            'end_id': end_id,
+            'since': since,
+            'end': end
+        }
+        set_not_none_dict_kwargs(request_data, **optional_none_params)
+
+        super(StockExchangeTransactionHistoryRequest, self).__init__(**kwargs)

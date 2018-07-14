@@ -2,7 +2,12 @@ import time
 import random
 
 
-__all__ = ('make_nonce', 'set_not_none_dict_kwargs')
+__all__ = ('Dotdict', 'make_nonce', 'set_not_none_dict_kwargs')
+
+
+class Dotdict(dict):
+    def __getattr__(self, attr):
+        return self.get(attr, None)
 
 
 def make_nonce(makeweight: int=1000000) -> int:

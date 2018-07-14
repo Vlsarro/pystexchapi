@@ -4,7 +4,8 @@ import json
 __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARKETS_RESPONSE', 'ORDERBOOK_RESPONSE',
            'GET_ACCOUNT_INFO_RESPONSE', 'CURRENCIES_RESPONSE', 'MARKET_SUMMARY_RESPONSE', 'TRADE_HISTORY_RESPONSE',
            'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE', 'CANCEL_ORDER_RESPONSE',
-           'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE')
+           'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE',
+           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -375,5 +376,33 @@ PRIVATE_GRAFIC_RESPONSE = json.dumps({
                 'date': '2016-05-03 00:00:00'
             }
         ]
+    }
+})
+
+DEPOSIT_RESPONSE = json.dumps({
+    'success': 1,
+    'data': {
+        'currency': 'NXT',
+        'address': 'NXT-C59X-SZRV-V36P-62SW3',
+        'publicKey': 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    }
+})
+
+WITHDRAW_RESPONSE = json.dumps({ 
+    'success': 1,
+    'data': { 
+        'code': 'NXT',
+        'id': 17,
+        'amount': '9',
+        'address': 'NXT-C59X-SZRV-V36P-62SW3',
+        'withdrawal_fee': '1',
+        'withdrawal_fee_currency': 'NXT',
+        'token': 'jTJDhfAok4AbEW0rdLKqMDagKsOOLRe1yTlQsUqLoXIgDyiwEimbWXiJ7',
+        'date': {
+            'date': '2016-07-06 14:06:21.000000',
+            'timezone_type': 3,
+            'timezone': 'UTC'
+        },
+        'msg': 'Message with confirmation sent to your email address'
     }
 })

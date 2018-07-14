@@ -12,8 +12,8 @@ from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 
 
 __all__ = ('TickerRequest', 'PricesRequest', 'StockExchangeRequest', 'ENCODING', 'CurrenciesRequest', 'MarketsRequest',
-           'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest',
-           'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest',
+           'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest', 'DepositRequest',
+           'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest', 'WithdrawRequest',
            'PrivateTradeHistoryRequest', 'TransactionHistoryRequest', 'GraficPrivateRequest')
 
 ENCODING = 'utf-8'
@@ -302,3 +302,23 @@ class GraficPrivateRequest(StockExchangePrivateRequest):
         set_not_none_dict_kwargs(request_data, since=since, end=end)
 
         super(GraficPrivateRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class DepositRequest(StockExchangePrivateRequest):
+    api_method = 'Deposit'
+
+    def __init__(self, currency: str, **kwargs):
+        request_data = {'currency': currency}
+        super(DepositRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class WithdrawRequest(StockExchangePrivateRequest):
+    api_method = 'Withdraw'
+    
+    def __init__(self, currency: str, address: str, amount: float, **kwargs):
+        request_data = {
+            'currency': currency,
+            'address': address,
+            'amount': amount
+        }
+        super(WithdrawRequest, self).__init__(request_data=request_data, **kwargs)

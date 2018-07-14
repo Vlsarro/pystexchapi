@@ -13,7 +13,7 @@ from pystexchapi.response import StockExchangeResponseParser
 from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUNT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
     GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE, \
-    TRANSACTIONS_HISTORY_RESPONSE, PRIVATE_GRAFIC_RESPONSE
+    TRANSACTIONS_HISTORY_RESPONSE, PRIVATE_GRAFIC_RESPONSE, DEPOSIT_RESPONSE, WITHDRAW_RESPONSE
 
 
 class TestStocksExchangeAPI(TestCase):
@@ -343,3 +343,12 @@ class TestStocksExchangeAPI(TestCase):
 
         with self.assertRaises(ValueError):
             self.api.call(_method_name, count=125)
+
+    @requests_mock.Mocker()
+    def test_deposit(self, m):
+        self.assertPrivateMethod('deposit', response_data=DEPOSIT_RESPONSE, m=m, currency='BTC')
+
+    @requests_mock.Mocker()
+    def test_withdraw(self, m):
+        self.assertPrivateMethod('withdraw', response_data=WITHDRAW_RESPONSE, m=m, currency='BTC', address='XXXXXXXX',
+                                 amount=457.0)

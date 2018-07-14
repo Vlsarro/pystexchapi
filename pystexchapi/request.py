@@ -11,12 +11,10 @@ from pystexchapi import ORDER_STATUS
 from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 
 
-__all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest', 'ENCODING',
-           'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
-           'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
-           'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest', 'StockExchangeTradeRequest',
-           'StockExchangeCancelOrderRequest', 'StockExchangePrivateTradeHistoryRequest',
-           'StockExchangeTransactionHistoryRequest')
+__all__ = ('TickerRequest', 'PricesRequest', 'StockExchangeRequest', 'ENCODING', 'CurrenciesRequest', 'MarketsRequest',
+           'MarketSummaryRequest', 'TradeHistoryRequest', 'OrderbookRequest', 'GraficPublicRequest',
+           'GetAccountInfoRequest', 'GetActiveOrdersRequest', 'TradeRequest', 'CancelOrderRequest',
+           'PrivateTradeHistoryRequest', 'TransactionHistoryRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -62,43 +60,43 @@ class StockExchangeRequest(PreparedRequest):
 ###################################################################
 
 
-class StockExchangeTickerRequest(StockExchangeRequest):
+class TickerRequest(StockExchangeRequest):
     api_method = 'ticker'
 
 
-class StockExchangePricesRequest(StockExchangeRequest):
+class PricesRequest(StockExchangeRequest):
     api_method = 'prices'
 
 
-class StockExchangeCurrenciesRequest(StockExchangeRequest):
+class CurrenciesRequest(StockExchangeRequest):
     api_method = 'currencies'
 
 
-class StockExchangeMarketsRequest(StockExchangeRequest):
+class MarketsRequest(StockExchangeRequest):
     api_method = 'markets'
 
 
-class StockExchangeMarketSummaryRequest(StockExchangeRequest):
+class MarketSummaryRequest(StockExchangeRequest):
     api_method = 'market_summary'
 
     def __init__(self, currency1: str, currency2: str, **kwargs):
         url = STOCK_EXCHANGE_BASE_URL.format(method=self.api_method) + '/{}/{}'.format(currency1, currency2)
-        super(StockExchangeMarketSummaryRequest, self).__init__(url=url, **kwargs)
+        super(MarketSummaryRequest, self).__init__(url=url, **kwargs)
 
 
-class StockExchangeTradeHistoryRequest(StockExchangeRequest):
+class TradeHistoryRequest(StockExchangeRequest):
     api_method = 'trades'
 
     def __init__(self, currency1: str, currency2: str, **kwargs):
         params = {'pair': '{}_{}'.format(currency1, currency2)}
-        super(StockExchangeTradeHistoryRequest, self).__init__(params=params, **kwargs)
+        super(TradeHistoryRequest, self).__init__(params=params, **kwargs)
 
 
-class StockExchangeOrderbookRequest(StockExchangeTradeHistoryRequest):
+class OrderbookRequest(TradeHistoryRequest):
     api_method = 'orderbook'
 
 
-class StockExchangeGraficPublicRequest(StockExchangeRequest):
+class GraficPublicRequest(StockExchangeRequest):
     api_method = 'grafic_public'
 
     def __init__(self, currency1: str, currency2: str, order: str='DESC', count: int=50, interval: str='1D',
@@ -116,7 +114,7 @@ class StockExchangeGraficPublicRequest(StockExchangeRequest):
         if end:
             params['end'] = end
 
-        super(StockExchangeGraficPublicRequest, self).__init__(params=params, **kwargs)
+        super(GraficPublicRequest, self).__init__(params=params, **kwargs)
 
 
 ###################################################################
@@ -156,7 +154,7 @@ class StockExchangePrivateRequest(StockExchangeRequest):
         }
 
 
-class StockExchangeGetAccountInfoRequest(StockExchangePrivateRequest):
+class GetAccountInfoRequest(StockExchangePrivateRequest):
     api_method = 'GetInfo'
 
 
@@ -166,7 +164,7 @@ DEFAULT_TYPE = 'ALL'
 DEFAULT_OWNER = 'OWN'
 
 
-class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
+class GetActiveOrdersRequest(StockExchangePrivateRequest):
     api_method = 'ActiveOrders'
 
     def __init__(self, _from: str=None, from_id: str=None, end_id: str=None, since: str=None, end: str=None,
@@ -194,10 +192,10 @@ class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
         }
         set_not_none_dict_kwargs(request_data, **optional_none_params)
 
-        super(StockExchangeGetActiveOrdersRequest, self).__init__(request_data=request_data, **kwargs)
+        super(GetActiveOrdersRequest, self).__init__(request_data=request_data, **kwargs)
 
 
-class StockExchangeTradeRequest(StockExchangePrivateRequest):
+class TradeRequest(StockExchangePrivateRequest):
     api_method = 'Trade'
     
     def __init__(self, _type: str, currency1: str, currency2: str, amount: float, rate: float, **kwargs):
@@ -218,20 +216,20 @@ class StockExchangeTradeRequest(StockExchangePrivateRequest):
             'rate': rate
         }
 
-        super(StockExchangeTradeRequest, self).__init__(request_data=request_data, **kwargs)
+        super(TradeRequest, self).__init__(request_data=request_data, **kwargs)
 
 
-class StockExchangeCancelOrderRequest(StockExchangePrivateRequest):
+class CancelOrderRequest(StockExchangePrivateRequest):
     api_method = 'CancelOrder'
 
     def __init__(self, order_id: int, **kwargs):
         request_data = {
             'order_id': order_id
         }
-        super(StockExchangeCancelOrderRequest, self).__init__(request_data=request_data, **kwargs)
+        super(CancelOrderRequest, self).__init__(request_data=request_data, **kwargs)
 
 
-class StockExchangePrivateTradeHistoryRequest(StockExchangePrivateRequest):
+class PrivateTradeHistoryRequest(StockExchangePrivateRequest):
     api_method = 'TradeHistory'
 
     def __init__(self, _from: int=None, from_id: str=None, end_id: str=None, since: str=None, end: str=None,
@@ -249,10 +247,10 @@ class StockExchangePrivateTradeHistoryRequest(StockExchangePrivateRequest):
             'status': status,
             'owner': owner
         }
-        super(StockExchangePrivateTradeHistoryRequest, self).__init__(request_data=request_data, **kwargs)
+        super(PrivateTradeHistoryRequest, self).__init__(request_data=request_data, **kwargs)
 
 
-class StockExchangeTransactionHistoryRequest(StockExchangePrivateRequest):
+class TransactionHistoryRequest(StockExchangePrivateRequest):
     api_method = 'TransHistory'
     
     def __init__(self, currency: str=DEFAULT_TYPE, _from: int=None, count: int=DEFAULT_COUNT, from_id: int=None,
@@ -280,4 +278,4 @@ class StockExchangeTransactionHistoryRequest(StockExchangePrivateRequest):
         }
         set_not_none_dict_kwargs(request_data, **optional_none_params)
 
-        super(StockExchangeTransactionHistoryRequest, self).__init__(request_data=request_data, **kwargs)
+        super(TransactionHistoryRequest, self).__init__(request_data=request_data, **kwargs)

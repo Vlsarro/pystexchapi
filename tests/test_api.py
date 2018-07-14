@@ -10,7 +10,7 @@ from pystexchapi.api import StocksExchangeAPI, APIMethod
 from pystexchapi.exc import APINoMethodException
 from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequest, ENCODING, StockExchangeRequest
 from pystexchapi.response import StockExchangeResponseParser
-from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
+from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUNT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
     GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE
 
@@ -294,7 +294,7 @@ class TestStocksExchangeAPI(TestCase):
 
     @requests_mock.Mocker()
     def test_get_account_info(self, m):
-        self.assertPrivateMethod('get_account_info', response_data=GET_ACCOUT_INFO_RESPONSE, m=m)
+        self.assertPrivateMethod('get_account_info', response_data=GET_ACCOUNT_INFO_RESPONSE, m=m)
 
     @requests_mock.Mocker()
     def test_get_active_orders(self, m):

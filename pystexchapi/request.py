@@ -7,7 +7,7 @@ import hmac
 import hashlib
 from requests import PreparedRequest
 
-from pystexchapi.utils import make_nonce
+from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 
 
 __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest', 'ENCODING',
@@ -163,6 +163,7 @@ class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
     def __init__(self, api_key: str, api_secret: str, _from: str=None, from_id: str=None, end_id: str=None,
                  since: str=None, end: str=None, pair: str='ALL', count: int=50, order: str='DESC',
                  _type: str='ALL', owner: str='OWN', **kwargs):
+
         request_data = {
             'pair': pair,
             'count': count,
@@ -171,22 +172,14 @@ class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
             'owner': owner
         }
 
-        # TODO: think about the way to get rid of this type of data assignments
-
-        if _from:
-            request_data['from'] = _from
-
-        if from_id:
-            request_data['from_id'] = from_id
-
-        if end_id:
-            request_data['end_id'] = end_id
-
-        if since:
-            request_data['since'] = since
-
-        if end:
-            request_data['end'] = end
+        optional_none_params = {
+            'from': _from,
+            'from_id': from_id,
+            'end_id': end_id,
+            'since': since,
+            'end': end
+        }
+        set_not_none_dict_kwargs(request_data, **optional_none_params)
 
         super(StockExchangeGetActiveOrdersRequest, self).__init__(api_key=api_key, api_secret=api_secret,
                                                                   request_data=request_data, **kwargs)

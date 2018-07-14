@@ -12,7 +12,7 @@ from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, StockExchangeTickerRequ
 from pystexchapi.response import StockExchangeResponseParser
 from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
-    GET_ACTIVE_ORDERS_RESPONSE
+    GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE
 
 
 class TestStocksExchangeAPI(TestCase):
@@ -310,3 +310,30 @@ class TestStocksExchangeAPI(TestCase):
         req_headers = req.headers
         self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
         self.assertEqual(req_headers['Content-Type'], 'application/json')
+
+    @requests_mock.Mocker()
+    def test_trade(self, m):
+        m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=TRADE_RESPONSE)
+
+        result = self.api.call('trade', _type='BUY', currency1='BTC', currency2='NXT', amount=2345, rate=1)
+        self.assertTrue(m.called)
+        self.assertEqual(m.call_count, 1)
+        self.assertAuth(m)
+        self.assertTrue(result)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result.get('success'), 1)
+        self.assertIn('data', result)
+
+        req = m.request_history[0]
+        req_headers = req.headers
+        self.assertEqual(req_headers['User-Agent'], 'pystexchapi')
+        self.assertEqual(req_headers['Content-Type'], 'application/json')
+
+        with self.assertRaises(ValueError):
+            self.api.call('trade', _type='DUMP', currency1='BTC', currency2='NXT', amount=2345, rate=1)
+
+        with self.assertRaises(ValueError):
+            self.api.call('trade', _type='BUY', currency1='BTC', currency2='NXT', amount=-235, rate=1)
+
+        with self.assertRaises(ValueError):
+            self.api.call('trade', _type='BUY', currency1='BTC', currency2='NXT', amount=2345, rate=-1)

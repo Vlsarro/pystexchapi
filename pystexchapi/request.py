@@ -13,7 +13,7 @@ from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest', 'ENCODING',
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
            'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
-           'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest')
+           'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest', 'StockExchangeTradeRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -160,7 +160,7 @@ class StockExchangeGetAccountInfoRequest(StockExchangePrivateRequest):
 class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
     api_method = 'ActiveOrders'
 
-    def __init__(self, api_key: str, api_secret: str, _from: str=None, from_id: str=None, end_id: str=None,
+    def __init__(self, _from: str=None, from_id: str=None, end_id: str=None,
                  since: str=None, end: str=None, pair: str='ALL', count: int=50, order: str='DESC',
                  _type: str='ALL', owner: str='OWN', **kwargs):
 
@@ -181,5 +181,28 @@ class StockExchangeGetActiveOrdersRequest(StockExchangePrivateRequest):
         }
         set_not_none_dict_kwargs(request_data, **optional_none_params)
 
-        super(StockExchangeGetActiveOrdersRequest, self).__init__(api_key=api_key, api_secret=api_secret,
-                                                                  request_data=request_data, **kwargs)
+        super(StockExchangeGetActiveOrdersRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class StockExchangeTradeRequest(StockExchangePrivateRequest):
+    api_method = 'Trade'
+    
+    def __init__(self, _type: str, currency1: str, currency2: str, amount: float, rate: float, **kwargs):
+        if amount and amount < 0:
+            raise ValueError('amount must be positive float number. Currently: {} {}'.format(amount, type(amount)))
+
+        if rate and rate < 0:
+            raise ValueError('rate must be positive float number. Currently: {} {}'.format(rate, type(rate)))
+
+        if _type and _type not in ('BUY', 'SELL'):
+            raise ValueError('The parameter type can be one of "BUY" or "SELL". Currently: {} {}'.format(_type,
+                             type(_type)))
+
+        request_data = {
+            'pair': '{}_{}'.format(currency1, currency2),
+            'type': _type,
+            'amount': amount,
+            'rate': rate
+        }
+
+        super(StockExchangeTradeRequest, self).__init__(request_data=request_data, **kwargs)

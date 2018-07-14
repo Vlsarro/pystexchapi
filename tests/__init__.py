@@ -3,7 +3,7 @@ import json
 
 __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARKETS_RESPONSE', 'ORDERBOOK_RESPONSE',
            'GET_ACCOUT_INFO_RESPONSE', 'CURRENCIES_RESPONSE', 'MARKET_SUMMARY_RESPONSE', 'TRADE_HISTORY_RESPONSE',
-           'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE')
+           'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -265,5 +265,17 @@ GET_ACTIVE_ORDERS_RESPONSE = json.dumps({
             'is_your_order': 0,
             'timestamp': 1464352978
         }
+    }
+})
+
+TRADE_RESPONSE = json.dumps({
+    'success': 1,
+    'data': { 
+        'funds': { 
+            'UAH': '4680.84',
+            'BTC': '254.7',
+            'NXT': '0'
+        },
+        'order_id': 5616820
     }
 })

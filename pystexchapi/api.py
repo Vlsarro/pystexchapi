@@ -9,7 +9,7 @@ from pystexchapi.exc import APINoMethodException
 from pystexchapi.request import StockExchangeTickerRequest, StockExchangePricesRequest, StockExchangeRequest, \
     StockExchangeCurrenciesRequest, StockExchangeMarketsRequest, StockExchangeMarketSummaryRequest, \
     StockExchangeTradeHistoryRequest, StockExchangeOrderbookRequest, StockExchangeGraficPublicRequest, \
-    StockExchangeGetAccountInfoRequest, StockExchangeGetActiveOrdersRequest, ENCODING
+    StockExchangeGetAccountInfoRequest, StockExchangeGetActiveOrdersRequest, StockExchangeTradeRequest, ENCODING
 from pystexchapi.response import StockExchangeResponseParser
 
 
@@ -54,7 +54,7 @@ DEFAULT_STOCKS_EXCHANGE_API_METHODS = (
     APIMethod(name='get_account_info', request=StockExchangeGetAccountInfoRequest, parser=StockExchangeResponseParser),
     APIMethod(name='get_active_orders', request=StockExchangeGetActiveOrdersRequest,
               parser=StockExchangeResponseParser),
-    # TODO: APIMethod(name='trade', request=None, parser=StockExchangeResponseParser),
+    APIMethod(name='trade', request=StockExchangeTradeRequest, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='cancel_order', request=None, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='private_trade_history', request=None, parser=StockExchangeResponseParser),
     # TODO: APIMethod(name='transactions_history', request=None, parser=StockExchangeResponseParser),

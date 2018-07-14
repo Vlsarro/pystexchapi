@@ -13,7 +13,8 @@ from pystexchapi.utils import make_nonce, set_not_none_dict_kwargs
 __all__ = ('StockExchangeTickerRequest', 'StockExchangePricesRequest', 'StockExchangeRequest', 'ENCODING',
            'StockExchangeCurrenciesRequest', 'StockExchangeMarketsRequest', 'StockExchangeMarketSummaryRequest',
            'StockExchangeTradeHistoryRequest', 'StockExchangeOrderbookRequest', 'StockExchangeGraficPublicRequest',
-           'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest', 'StockExchangeTradeRequest')
+           'StockExchangeGetAccountInfoRequest', 'StockExchangeGetActiveOrdersRequest', 'StockExchangeTradeRequest',
+           'StockExchangeCancelOrderRequest')
 
 ENCODING = 'utf-8'
 STOCK_EXCHANGE_BASE_URL = 'https://app.stocks.exchange/api2/{method}'
@@ -206,3 +207,13 @@ class StockExchangeTradeRequest(StockExchangePrivateRequest):
         }
 
         super(StockExchangeTradeRequest, self).__init__(request_data=request_data, **kwargs)
+
+
+class StockExchangeCancelOrderRequest(StockExchangePrivateRequest):
+    api_method = 'CancelOrder'
+
+    def __init__(self, order_id: int, **kwargs):
+        request_data = {
+            'order_id': order_id
+        }
+        super(StockExchangeCancelOrderRequest, self).__init__(request_data=request_data, **kwargs)

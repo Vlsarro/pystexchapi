@@ -95,16 +95,24 @@ class StockExchangeOrderbookRequest(StockExchangeTradeHistoryRequest):
     api_method = 'orderbook'
 
 
-class StockExchangeGraficPublicRequest(StockExchangeTradeHistoryRequest):
+class StockExchangeGraficPublicRequest(StockExchangeRequest):
     api_method = 'grafic_public'
 
-    def __init__(self, currency1: str, currency2: str, interval: str, order: str, count: int, **kwargs):
+    def __init__(self, currency1: str, currency2: str, order: str='DESC', count: int=50, interval: str='1D',
+                 since: str=None, end: str=None, **kwargs):
         params = {
             'pair': '{}_{}'.format(currency1, currency2),
             'interval': interval,
             'order': order,
             'count': count
         }
+
+        if since:
+            params['since'] = since
+
+        if end:
+            params['end'] = end
+
         super(StockExchangeGraficPublicRequest, self).__init__(params=params, **kwargs)
 
 

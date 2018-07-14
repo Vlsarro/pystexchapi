@@ -5,7 +5,8 @@ __all__ = ('TICKER_RESPONSE', 'PRICES_RESPONSE', 'GENERIC_ERROR_RESPONSE', 'MARK
            'GET_ACCOUNT_INFO_RESPONSE', 'CURRENCIES_RESPONSE', 'MARKET_SUMMARY_RESPONSE', 'TRADE_HISTORY_RESPONSE',
            'PUBLIC_GRAFIC_RESPONSE', 'GET_ACTIVE_ORDERS_RESPONSE', 'TRADE_RESPONSE', 'CANCEL_ORDER_RESPONSE',
            'PRIVATE_TRADE_HISTORY_RESPONSE', 'TRANSACTIONS_HISTORY_RESPONSE', 'PRIVATE_GRAFIC_RESPONSE',
-           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE', 'GENERATE_WALLETS_RESPONSE', 'TICKET_RESPONSE')
+           'DEPOSIT_RESPONSE', 'WITHDRAW_RESPONSE', 'GENERATE_WALLETS_RESPONSE', 'TICKET_RESPONSE',
+           'GET_TICKETS_RESPONSE')
 
 
 TICKER_RESPONSE = json.dumps([
@@ -425,5 +426,41 @@ TICKET_RESPONSE = json.dumps({
         'ticket_category_id': '2',
         'ticket_status_id': '1',
         'message': 'Cann’t get deposit to my ETH wallet'
+    }
+})
+
+GET_TICKETS_RESPONSE = json.dumps({
+    'success': 1, 
+    'data': { 
+        '3': { 
+            'ticket_id': 3, 
+            'ticket_category_id': 2,
+            'ticket_status_id': 1,
+            'ticket_messages': {
+                '4': {
+                    'text': 'Can\'t get deposit to my ETH wallet',
+                    'date': {
+                        'date': '2017-03-14 10:04:32.000000',
+                        'timezone_type': 3,
+                        'timezone': 'UTC'
+                    }
+                }
+            }
+        },
+        '2': { 
+            'ticket_id': 2, 
+            'ticket_category_id': 5,
+            'ticket_status_id': 1, 
+            'ticket_messages': { 
+                '3': {
+                    'text': 'pizza',
+                    'date': {
+                        'date': '2017-03-14 08:59:35.000000',
+                        'timezone_type': 3,
+                        'timezone': 'UTC'
+                    }
+                }
+            }
+        }
     }
 })

@@ -14,7 +14,7 @@ from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUN
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
     GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE, \
     TRANSACTIONS_HISTORY_RESPONSE, PRIVATE_GRAFIC_RESPONSE, DEPOSIT_RESPONSE, WITHDRAW_RESPONSE, \
-    GENERATE_WALLETS_RESPONSE, TICKET_RESPONSE
+    GENERATE_WALLETS_RESPONSE, TICKET_RESPONSE, GET_TICKETS_RESPONSE
 
 
 class TestStocksExchangeAPI(TestCase):
@@ -362,3 +362,8 @@ class TestStocksExchangeAPI(TestCase):
     def test_ticket(self, m):
         self.assertPrivateMethod('ticket', response_data=TICKET_RESPONSE, m=m, category=1,
                                  message='Can’t get deposit to my ETH wallet', subject='Can’t get deposit')
+
+    @requests_mock.Mocker()
+    def test_get_tickets(self, m):
+        self.assertPrivateMethod('get_tickets', response_data=GET_TICKETS_RESPONSE, m=m, ticket_id=1,
+                                 category=2, status=1)

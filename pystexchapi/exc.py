@@ -45,8 +45,8 @@ class APINoMethodException(APIBaseException):
     error_code = '03'
 
     def __init__(self, method, exc=None, *args, **kwargs):
-        self.msg = 'API does not provide <{}> method'.format(method)
-        super(APINoMethodException, self).__init__(exc=exc, *args, **kwargs)
+        msg = 'API does not provide <{}> method'.format(method)
+        super(APINoMethodException, self).__init__(msg=msg, exc=exc, *args, **kwargs)
 
 
 class APIResponseParsingException(APIBaseException):

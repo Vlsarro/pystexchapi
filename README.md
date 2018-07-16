@@ -3,7 +3,7 @@ Python client for Stocks Exchange API
 
 ## Installation
 
-Currently there is no ```setup.py``` file. So just copy and paste ```pystexchapi``` to your project.
+Clone repository and run ```setup.py```.
 
 ## Usage
 

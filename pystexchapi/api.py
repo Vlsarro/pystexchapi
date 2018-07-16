@@ -11,7 +11,7 @@ from pystexchapi.request import TickerRequest, PricesRequest, StockExchangeReque
     GetActiveOrdersRequest, TradeRequest, CancelOrderRequest, PrivateTradeHistoryRequest, TransactionHistoryRequest, \
     GraficPrivateRequest, DepositRequest, WithdrawRequest, GenerateWalletsRequest, TicketRequest, GetTicketsRequest, \
     ReplyTicketRequest, ENCODING
-from pystexchapi.response import StockExchangeResponseParser
+from pystexchapi.response import StockExchangeResponseParser, APIResponse
 
 
 __all__ = ('StocksExchangeAPI', 'APIMethod')
@@ -100,7 +100,7 @@ class StocksExchangeAPI(object):
         return response
 
     def query(self, parser: Type[StockExchangeResponseParser], req: Type[StockExchangeRequest],
-              **kwargs) -> dict:
+              **kwargs) -> APIResponse:
         _req = req(**kwargs)
 
         if any(k in kwargs for k in (SAVING_TIME_KEY, 'with_saving')):
@@ -111,7 +111,7 @@ class StocksExchangeAPI(object):
         return response
 
     def _query_with_saving(self, parser: Type[StockExchangeResponseParser],
-                           req: StockExchangeRequest, **kwargs) -> dict:
+                           req: StockExchangeRequest, **kwargs) -> APIResponse:
         """
         Method enables user to save parsed response for specified time and prevents additional requests in
         this time interval. This method is convenient for ban avoidance in case of too frequent requests to API.
@@ -141,7 +141,7 @@ class StocksExchangeAPI(object):
 
             return data
 
-    def call(self, method: str, **kwargs):
+    def call(self, method: str, **kwargs) -> APIResponse:
         _method = self.api_methods.get(method)
 
         if not _method:

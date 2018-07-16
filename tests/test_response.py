@@ -2,7 +2,7 @@ import unittest
 import json
 import requests
 
-from pystexchapi.response import StockExchangeResponseParser
+from pystexchapi.response import StockExchangeResponseParser, APIResponse
 from pystexchapi.exc import APIDataException, APIResponseParsingException
 from tests import TICKER_RESPONSE, GENERIC_ERROR_RESPONSE
 
@@ -24,8 +24,11 @@ class TestStockExchangeResponseParser(unittest.TestCase):
         return response
 
     def test_parse(self):
-        data = StockExchangeResponseParser.parse(self._make_response(content=TICKER_RESPONSE))
-        self.assertTrue(data)
+        resp = StockExchangeResponseParser.parse(self._make_response(content=TICKER_RESPONSE))
+        self.assertTrue(resp)
+        self.assertIsInstance(resp, APIResponse)
+
+        data = resp.data
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 1)
 

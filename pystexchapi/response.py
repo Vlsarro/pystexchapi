@@ -7,10 +7,20 @@ import requests
 from pystexchapi.exc import APIResponseParsingException, APIDataException
 
 
+__all__ = ('APIResponse', 'StockExchangeResponseParser')
+
+
+class APIResponse(object):
+
+    def __init__(self, data, exc=None):
+        self.data = data
+        self.exc = exc
+
+
 class StockExchangeResponseParser(object):
 
     @classmethod
-    def parse(cls, response: requests.Response) -> dict:
+    def parse(cls, response: requests.Response) -> APIResponse:
         """
         Base parser for stocks exchange responses
         """
@@ -20,7 +30,7 @@ class StockExchangeResponseParser(object):
             raise APIResponseParsingException(exc=e, response=response)
         else:
             cls.check_for_errors(data)
-            return data
+            return APIResponse(data)
 
     @staticmethod
     def check_for_errors(data):

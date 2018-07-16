@@ -124,23 +124,23 @@ class TestStocksExchangeAPI(TestCase):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method='ticker'), text=TICKER_RESPONSE)
         time_mock.return_value = 130.0
 
-        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest()).data
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertTrue(data)
 
         time_mock.return_value = 140.0
-        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest()).data
         self.assertEqual(m.call_count, 1)  # there was no call to API, use saved response
         self.assertTrue(data)
 
         time_mock.return_value = 189.9
-        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest()).data
         self.assertEqual(m.call_count, 1)  # there was no call to API, use saved response
         self.assertTrue(data)
 
         time_mock.return_value = 191.0
-        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest())
+        data = self.api._query_with_saving(StockExchangeResponseParser, TickerRequest()).data
         self.assertEqual(m.call_count, 2)
         self.assertTrue(data)
 
@@ -152,7 +152,7 @@ class TestStocksExchangeAPI(TestCase):
     def test_ticker(self, m):
         _method_name = 'ticker'
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=TICKER_RESPONSE)
-        data = self.api.call(_method_name)
+        data = self.api.call(_method_name).data
 
         self.assertPublicMethod(method_name=_method_name, m=m)
 
@@ -164,7 +164,7 @@ class TestStocksExchangeAPI(TestCase):
     def test_prices(self, m):
         _method_name = 'prices'
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=PRICES_RESPONSE)
-        data = self.api.call(_method_name)
+        data = self.api.call(_method_name).data
 
         self.assertPublicMethod(_method_name, m)
 
@@ -177,7 +177,7 @@ class TestStocksExchangeAPI(TestCase):
         _method_name = 'markets'
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=MARKETS_RESPONSE)
 
-        data = self.api.call(_method_name)
+        data = self.api.call(_method_name).data
         self.assertPublicMethod(_method_name, m)
         self.assertTrue(data)
         self.assertIsInstance(data, list)
@@ -188,7 +188,7 @@ class TestStocksExchangeAPI(TestCase):
         _method_name = 'currencies'
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_name), text=CURRENCIES_RESPONSE)
 
-        data = self.api.call(_method_name)
+        data = self.api.call(_method_name).data
         self.assertPublicMethod(_method_name, m)
         self.assertTrue(data)
         self.assertIsInstance(data, list)
@@ -201,7 +201,7 @@ class TestStocksExchangeAPI(TestCase):
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url),
                        text=MARKET_SUMMARY_RESPONSE)
 
-        data = self.api.call(_method_name, currency1='BTC', currency2='USD')
+        data = self.api.call(_method_name, currency1='BTC', currency2='USD').data
         self.assertPublicMethod(_method_url, m)
         self.assertTrue(data)
         self.assertIsInstance(data, list)
@@ -219,7 +219,7 @@ class TestStocksExchangeAPI(TestCase):
 
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url), text=TRADE_HISTORY_RESPONSE)
 
-        data = self.api.call(_method_name, currency1='BTC', currency2='NXT')
+        data = self.api.call(_method_name, currency1='BTC', currency2='NXT').data
         self.assertPublicMethod(_method_url, m)
         self.assertTrue(data)
         self.assertEqual(data['success'], 1)
@@ -240,7 +240,7 @@ class TestStocksExchangeAPI(TestCase):
 
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url), text=ORDERBOOK_RESPONSE)
 
-        data = self.api.call(_method_name, currency1='BTC', currency2='NXT')
+        data = self.api.call(_method_name, currency1='BTC', currency2='NXT').data
         self.assertPublicMethod(_method_url, m)
         self.assertTrue(data)
         self.assertEqual(data['success'], 1)
@@ -261,7 +261,7 @@ class TestStocksExchangeAPI(TestCase):
         _method_url = '{}?pair={}_{}&interval=1D&order=DESC&count=50'.format('grafic_public', _currency1, _currency2)
         m.register_uri('GET', STOCK_EXCHANGE_BASE_URL.format(method=_method_url), text=PUBLIC_GRAFIC_RESPONSE)
 
-        data = self.api.call(_method_name, currency1='BTC', currency2='NXT')
+        data = self.api.call(_method_name, currency1='BTC', currency2='NXT').data
         self.assertPublicMethod(_method_url, m)
         self.assertTrue(data)
         self.assertEqual(data['success'], 1)
@@ -279,7 +279,7 @@ class TestStocksExchangeAPI(TestCase):
     def assertPrivateMethod(self, method_name, response_data, m, **request_params):
         m.register_uri('POST', STOCK_EXCHANGE_BASE_URL.format(method=''), text=response_data)
 
-        result = self.api.call(method_name, **request_params)
+        result = self.api.call(method_name, **request_params).data
         self.assertTrue(m.called)
         self.assertEqual(m.call_count, 1)
         self.assertAuth(m)

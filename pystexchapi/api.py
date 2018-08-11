@@ -10,8 +10,9 @@ from pystexchapi.request import TickerRequest, PricesRequest, StockExchangeReque
     MarketSummaryRequest, TradeHistoryRequest, OrderbookRequest, GraficPublicRequest, GetAccountInfoRequest, \
     GetActiveOrdersRequest, TradeRequest, CancelOrderRequest, PrivateTradeHistoryRequest, TransactionHistoryRequest, \
     GraficPrivateRequest, DepositRequest, WithdrawRequest, GenerateWalletsRequest, TicketRequest, GetTicketsRequest, \
-    ReplyTicketRequest, ENCODING
+    ReplyTicketRequest
 from pystexchapi.response import StockExchangeResponseParser, APIResponse
+from pystexchapi.utils import ENCODING
 
 
 __all__ = ('StocksExchangeAPI', 'APIMethod')
@@ -88,14 +89,15 @@ class StocksExchangeAPI(object):
     def update_api_methods(self, api_methods: dict):
         self.api_methods.update(api_methods)
 
-    def _query(self, req: requests.PreparedRequest) -> requests.Response:
+    def _query(self, req: requests.Request) -> requests.Response:
         sess = requests.Session()
 
         if cache_adapter:
             sess.mount('https://', cache_adapter)
             sess.mount('http://', cache_adapter)
 
-        response = sess.send(req, verify=self.ssl_enabled)
+        prepared_request = req.prepare()
+        response = sess.send(prepared_request, verify=self.ssl_enabled)
         response.raise_for_status()
         return response
 

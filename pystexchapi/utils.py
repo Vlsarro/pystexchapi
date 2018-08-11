@@ -2,7 +2,10 @@ import time
 import random
 
 
-__all__ = ('Dotdict', 'make_nonce', 'set_not_none_dict_kwargs')
+__all__ = ('Dotdict', 'make_nonce', 'set_not_none_dict_kwargs', 'ENCODING')
+
+
+ENCODING = 'utf-8'
 
 
 class Dotdict(dict):

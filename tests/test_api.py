@@ -8,8 +8,9 @@ from unittest.mock import patch
 
 from pystexchapi.api import StocksExchangeAPI, APIMethod
 from pystexchapi.exc import APINoMethodException
-from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, TickerRequest, ENCODING, StockExchangeRequest
+from pystexchapi.request import STOCK_EXCHANGE_BASE_URL, TickerRequest, StockExchangeRequest
 from pystexchapi.response import StockExchangeResponseParser
+from pystexchapi.utils import ENCODING
 from tests import TICKER_RESPONSE, PRICES_RESPONSE, MARKETS_RESPONSE, GET_ACCOUNT_INFO_RESPONSE, CURRENCIES_RESPONSE, \
     MARKET_SUMMARY_RESPONSE, TRADE_HISTORY_RESPONSE, ORDERBOOK_RESPONSE, PUBLIC_GRAFIC_RESPONSE, \
     GET_ACTIVE_ORDERS_RESPONSE, TRADE_RESPONSE, CANCEL_ORDER_RESPONSE, PRIVATE_TRADE_HISTORY_RESPONSE, \

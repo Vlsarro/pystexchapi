@@ -1,4 +1,5 @@
-# pystexchapi
+# pystexchapi DEPRECATED
+# USE https://github.com/Vlsarro/pycryptoclients 
 Python client for Stocks Exchange API
 
 ## Installation
